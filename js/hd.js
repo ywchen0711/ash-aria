@@ -7,7 +7,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { tile } from './art.js?v=1';
+import { tile } from './art.js?v=2';
 
 const PITCH = 50 * Math.PI / 180, FOV = 30, DIST = 23;
 const LEAN = PITCH * 0.45, STRETCH = 1 / Math.cos(PITCH - LEAN);     // billboards lean back a little and are stretched to look upright

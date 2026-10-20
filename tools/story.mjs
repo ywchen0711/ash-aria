@@ -1,12 +1,12 @@
 // node tools/story.mjs [seed] — plays the whole story without a browser: every chapter in order, on the real maps, with
 // the real scripts. It checks that each place can be reached (on foot, or by airship once there is one), fights the story
 // battles and a fair number of random ones, buys gear in each town, and reports the party's level chapter by chapter.
-import { buildMaps, TILE, WALK, BARRIERS, LANDABLE } from '../js/maps.js?v=1';
-import { decorate, opening, CHAPTERS } from '../js/story.js?v=1';
-import { CHARS, ITEMS, GEAR, TOOLS, SPELLS, canEquip, shopList } from '../js/data.js?v=1';
-import { newMember, healFull, gainXp, gainAp, bagAdd, bagTake, maxhp, maxmp, equip, levelTo, optimum } from '../js/party.js?v=1';
-import { createBattle, tick, perform, enemyAct, foesOf, isAuto, autoAct, rewards, alive } from '../js/battle.js?v=1';
-import { encounter, ZONES, MONSTERS } from '../js/monsters.js?v=1';
+import { buildMaps, TILE, WALK, BARRIERS, LANDABLE } from '../js/maps.js?v=2';
+import { decorate, opening, CHAPTERS } from '../js/story.js?v=2';
+import { CHARS, ITEMS, GEAR, TOOLS, SPELLS, canEquip, shopList } from '../js/data.js?v=2';
+import { newMember, healFull, gainXp, gainAp, bagAdd, bagTake, maxhp, maxmp, equip, levelTo, optimum } from '../js/party.js?v=2';
+import { createBattle, tick, perform, enemyAct, foesOf, isAuto, autoAct, rewards, alive } from '../js/battle.js?v=2';
+import { encounter, ZONES, MONSTERS } from '../js/monsters.js?v=2';
 
 let seed = +(process.argv[2] || 1);
 Math.random = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -151,7 +151,7 @@ async function enter(id) {
   if (m.dungeon) setMap(to || id, ...m.anchor.start); else if (m.entry) setMap(to || id, m.entry[0], m.entry[1]); else setMap(to || id, 12, m.h - 1);
   await runEnter();
 }
-import { worldZone } from '../js/maps.js?v=1';
+import { worldZone } from '../js/maps.js?v=2';
 const zoneAt = (w, x, y) => worldZone(w, x, y);
 // walk through a dungeon's floors to the far room of the given floor, fighting on the way, then set off what waits there
 async function dungeon(base, toFloor) {
@@ -226,7 +226,7 @@ async function run() {
   await enter('camp'); await enter('kasumi'); await enter('ferry'); await dungeon('ferry');
   S.bag.meat = 1; await enter('wildhut'); await talk('wildhut', look('galan'));
   await enter('trench'); await dungeon('trench');
-  await enter('frostvale');                                  // → Aria's story (the octopus, then the elder)
+  await enter('frostvale');                                  // → Aria's story (Gearwick, then the elder)
   await talk('frostvale', at(19, 15));                       // → chapter 7, the battle on the snow → chapter 8
   // 8-9
   await enter('southwind'); await enter('rainhold'); setMap('raintower', ...M.raintower.anchor.start); await dungeon('raintower');
@@ -235,13 +235,13 @@ async function run() {
   // 10-13
   await enter('vexhold'); setMap('arcanum', ...M.arcanum.anchor.start); await dungeon('arcanum');
   await enter('gate'); await dungeon('gate');
-  await enter('vexhold'); setMap('palace', 10, 12); await talk('palace', look('emperor'));
+  await enter('vexhold'); setMap('palace', 10, 12); await talk('palace', look('leopold'));
   // 14-17
   await enter('samar'); await talk('samar', look('bolo')); await dungeon('burning');
   await enter('valley'); await dungeon('valley');
   await M.world.onBoard(A)(A);                               // the sky battle → the isle
   await dungeon('isle');                                     // → the Pillars → the Fall → the Solitary Isle
-  // 18: feed Grandpa Tobin four good fish
+  // 18: bring Grandpa Tobin four bright memory shells
   for (let i = 0; i < 4; i++) { S.flags.fish = 1; await talk('solitary', look('tobin')); }
   setMap('solitary', 10, 3); await steps(M.solitary, [10, 3], 0);
   // 19-21
@@ -251,7 +251,7 @@ async function run() {
   await enter('nikko'); await talk('nikko', look('regis'));
   await enter('tomb'); await dungeon('tomb');
   await enter('crumbleton'); await talk('crumbleton', look('sai')); await talk('crumbleton', look('lili'));
-  await enter('hopehaven'); await talk('hopehaven', look('aria'));
+  await enter('hopehaven'); await talk('hopehaven', look('selene'));
   await enter('dream'); await dungeon('dream');
   await enter('phoenixcave'); await dungeon('phoenixcave');
   S.bag.meat = 1; await enter('r_wildhut'); await talk('r_wildhut', look('galan')); await talk('r_wildhut', at(6, 3));
@@ -259,7 +259,7 @@ async function run() {
   await enter('culttower'); await dungeon('culttower');
   await enter('r_frostvale'); await talk('r_frostvale', look('moka')); setMap('icecave', ...M.icecave.anchor.start); await dungeon('icecave');
   await enter('wormbelly'); await dungeon('wormbelly');
-  await enter('hopehaven');                                  // the monster attacks; Aria takes up her sword
+  await enter('hopehaven');                                  // the Ash Behemoth attacks; Selene takes up her sword
   for (let i = 1; i <= 8; i++) { await enter('lair' + i); await dungeon('lair' + i); }
   await enter('spire'); await dungeon('spire');              // the statues, then the throne → the ending
 }

@@ -1,12 +1,12 @@
 // ASH ARIA — the battle screen: side view (monsters left, party right), the ATB window, every command's menu, the spoils.
 // The rules live in battle.js; this file shows them and asks the player what to do. Time stops while a menu is open ("wait").
-import { T, EN } from './i18n.js?v=1';
-import { CHARS, CMD, SPELLS, ITEMS, GEAR, ASTRALS, BLITZ, IAI, TOOLS, REELS, REEL_ICON, DANCES, LORES, MAGITEK, STATUS } from './data.js?v=1';
-import { MONSTERS } from './monsters.js?v=1';
-import * as BT from './battle.js?v=1';
-import { person, monster, backdrop } from './art.js?v=1';
-import * as UI from './ui.js?v=1';
-import { gainXp, gainAp, bagAdd, hasFx } from './party.js?v=1';
+import { T, EN } from './i18n.js?v=2';
+import { CHARS, CMD, SPELLS, ITEMS, GEAR, ASTRALS, BLITZ, IAI, TOOLS, REELS, REEL_ICON, DANCES, LORES, MAGITEK, STATUS } from './data.js?v=2';
+import { MONSTERS } from './monsters.js?v=2';
+import * as BT from './battle.js?v=2';
+import { person, monster, backdrop } from './art.js?v=2';
+import * as UI from './ui.js?v=2';
+import { gainXp, gainAp, bagAdd, hasFx } from './party.js?v=2';
 const { box, text, menu, S: SC, VW } = UI;
 
 const nm = (u) => BT.unitName(u, EN);
@@ -36,7 +36,7 @@ function drawBattle(G, B, g, dt) {
     if (u.gone) continue;
     if (!BT.alive(u)) { u.fade = (u.fade ?? 1) - dt * 2; if (u.fade <= 0) { u.gone = true; continue; } }
     const flash = u.flash > 0 && Math.floor(u.flash * 20) % 2 === 0; if (u.flash > 0) u.flash -= dt;
-    const img = monster(u.mon.art, u.mon.col, flash || u.flash > 0), bob = u.st.stop || u.st.sleep ? 0 : Math.sin(B.anim * 2.4 + u.slot) * 1.2;
+    const img = monster(u.mon.art, u.mon.col, flash || u.flash > 0, u.sz), bob = u.st.stop || u.st.sleep ? 0 : Math.sin(B.anim * 2.4 + u.slot) * 1.2;
     g.save(); g.globalAlpha = BT.alive(u) ? 1 : Math.max(0, u.fade);
     if (!BT.alive(u)) { g.filter = 'brightness(2) sepia(1) hue-rotate(-50deg)'; }
     g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(u.cx * SC, (u.cy + 2) * SC, u.sz * 0.36 * SC, u.sz * 0.08 * SC, 0, 0, 7); g.fill();
@@ -52,7 +52,7 @@ function drawBattle(G, B, g, dt) {
     g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse((x + 8) * SC, (y + 16) * SC, 9 * SC, 2 * SC, 0, 0, 7); g.fill();
     g.save();
     if (!BT.alive(u)) { g.globalAlpha = 0.55; g.translate((x + 8) * SC, (y + 12) * SC); g.rotate(-Math.PI / 2); g.drawImage(person(look || 'man', 'left', 0), -8 * SC, -12 * SC, 16 * SC * 1.25, 16 * SC * 1.25); }
-    else if (u.feral) { const d = MONSTERS[u.feral]; g.drawImage(monster(d.art, d.col), (x - 8) * SC, (y - 12) * SC, 30 * SC, 30 * SC); }
+    else if (u.feral) { const d = MONSTERS[u.feral]; g.drawImage(monster(d.art, d.col, false, 30), (x - 8) * SC, (y - 12) * SC, 30 * SC, 30 * SC); }
     else {
       if (u.st.astral) { g.shadowColor = '#ff80ff'; g.shadowBlur = 18; }
       g.drawImage(person(look, 'left', (B.acting === u || (u.atb >= 100 && Math.floor(B.anim * 3) % 2)) ? 1 : 0), x * SC, (y - 4 + (kneel ? 3 : 0)) * SC, 16 * SC * 1.25, 16 * SC * 1.25);
@@ -163,7 +163,7 @@ function reels(rng) {
     const close = UI.custom({
       tick(dt) { t += dt; for (let i = out.length; i < 3; i++) pos[i] = Math.floor(t * (9 + i * 2) + i * 2) % REELS.length; if (t > 12 && out.length < 3) this.key('ok'); },
       draw() {
-        box(64, 64, 128, 52); text(T(['命運輪', 'Fortune']), 128, 70, { align: 'center', color: '#ffe080', size: 7 * SC });
+        box(64, 64, 128, 52); text(T(['天候輪', 'Weather Wheel']), 128, 70, { align: 'center', color: '#ffe080', size: 7 * SC });
         for (let i = 0; i < 3; i++) { box(76 + i * 36, 82, 32, 28); text(REEL_ICON[out[i] || REELS[pos[i]]], 92 + i * 36, 89, { align: 'center', size: 12 * SC, color: out[i] ? '#ffffff' : '#c8c8c8' }); }
       },
       key(k) { if (k !== 'ok') return; out.push(REELS[pos[out.length]]); if (out.length === 3) { setTimeout(() => { close(); resolve(out); }, 450); } },

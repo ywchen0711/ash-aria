@@ -22,49 +22,49 @@ export const WW = 80, WH = 56;
 // every place on the world maps: id (= the map it leads to), where, the icon, the name
 export const PLACES_B = [
   { id: 'frostvale', x: 13, y: 6, icon: 'O', name: N('霜石鎮', 'Frostvale') },
-  { id: 'sularis', x: 9, y: 19, icon: 'C', name: N('蘇拉斯城', 'Sularis Castle') },
+  { id: 'sularis', x: 9, y: 19, icon: 'C', name: N('蘇拉斯風琴城', 'Sularis') },
   { id: 'kolan', x: 22, y: 17, icon: 'D', name: N('克蘭山', 'Mt. Kolan') },
-  { id: 'hideout', x: 33, y: 12, icon: 'H', name: N('黎明軍基地', 'Dawnline Hideout') },
+  { id: 'hideout', x: 33, y: 12, icon: 'H', name: N('無聲者之谷', 'Valley of the Unsung') },
   { id: 'river', x: 35, y: 16, icon: 'D', name: N('雷鳴河', 'Thunder River') },
   { id: 'southwind', x: 16, y: 29, icon: 'O', name: N('南風鎮', 'Southwind') },
   { id: 'swtunnel', x: 13, y: 25, icon: 'D', name: N('南風地下道', 'Southwind Tunnels') },
-  { id: 'camp', x: 40, y: 25, icon: 'Z', name: N('帝國營地', 'Imperial Camp') },
+  { id: 'camp', x: 40, y: 25, icon: 'Z', name: N('聖詠院營地', 'Choir Camp') },
   { id: 'kasumi', x: 45, y: 21, icon: 'C', name: N('霞之國', 'Kasumi') },
-  { id: 'ferry', x: 43, y: 30, icon: 'D', name: N('冥河渡口', 'Mournwater Landing') },
+  { id: 'ferry', x: 43, y: 30, icon: 'D', name: N('沉鐘沼澤', 'Drowned Bell Marsh') },
   { id: 'wildhut', x: 52, y: 29, icon: 'H', name: N('荒原小屋', 'Wildlands Hut') },
   { id: 'trench', x: 55, y: 35, icon: 'D', name: N('海蛇洞窟', 'Serpent Trench') },
   { id: 'rainhold', x: 24, y: 41, icon: 'O', name: N('雨城拉斯特', 'Rainhold') },
   { id: 'gilden', x: 8, y: 44, icon: 'O', name: N('金鍍城', 'Gilden') },
-  { id: 'opera', x: 16, y: 49, icon: 'W', name: N('月光歌劇院', 'Moonlight Opera House') },
-  { id: 'vexhold', x: 58, y: 45, icon: 'Z', name: N('帝都威克斯', 'Vexhold') },
-  { id: 'gate', x: 71, y: 40, icon: 'D', name: N('星門', 'Astral Gate') },
-  { id: 'samar', x: 69, y: 51, icon: 'H', name: N('隱村薩瑪', 'Samar') },
+  { id: 'opera', x: 16, y: 49, icon: 'W', name: N('月光音樂廳', 'Moonlight Concert Hall') },
+  { id: 'vexhold', x: 58, y: 45, icon: 'Z', name: N('聖詠都威克斯', 'Vexhold') },
+  { id: 'gate', x: 71, y: 40, icon: 'D', name: N('始源之門', 'Origin Gate') },
+  { id: 'samar', x: 69, y: 51, icon: 'H', name: N('書庫村薩瑪', 'Samar') },
   { id: 'valley', x: 75, y: 46, icon: 'D', name: N('星靈之谷', 'Astral Valley') },
 ];
 export const PLACES_R = [
-  { id: 'solitary', x: 71, y: 21, icon: 'H', name: N('孤島', 'Solitary Isle') },
+  { id: 'solitary', x: 71, y: 21, icon: 'H', name: N('燈塔孤島', 'Lighthouse Isle') },
   { id: 'tidewatch', x: 57, y: 48, icon: 'O', name: N('潮望鎮', 'Tidewatch') },
   { id: 'nikko', x: 38, y: 33, icon: 'O', name: N('尼可鎮', 'Nikko') },
   { id: 'hopehaven', x: 50, y: 29, icon: 'H', name: N('希望村', 'Hopehaven') },
   { id: 'crumbleton', x: 30, y: 31, icon: 'O', name: N('傾城', 'Crumbleton') },
-  { id: 'r_sularis', x: 9, y: 19, icon: 'D', name: N('沉沙之城', 'Sunken Sularis') },
-  { id: 'tomb', x: 24, y: 44, icon: 'D', name: N('芙蕾雅之墓', 'Freya\'s Tomb') },
-  { id: 'dream', x: 45, y: 21, icon: 'Z', name: N('夢魘之城', 'Castle of Nightmares') },
-  { id: 'phoenixcave', x: 6, y: 9, icon: 'D', name: N('不死鳥洞窟', 'Phoenix Cave') },
-  { id: 'r_wildhut', x: 53, y: 25, icon: 'H', name: N('荒原老屋', 'Old Hut') },
+  { id: 'r_sularis', x: 9, y: 19, icon: 'D', name: N('沉沙之城', 'The Sunken City') },
+  { id: 'tomb', x: 24, y: 44, icon: 'D', name: N('雲鯨之墓', 'The Whale\'s Graveyard') },
+  { id: 'dream', x: 45, y: 21, icon: 'Z', name: N('霞之國廢墟', 'Ruins of Kasumi') },
+  { id: 'phoenixcave', x: 6, y: 9, icon: 'D', name: N('回音洞窟', 'Echo Cave') },
+  { id: 'r_wildhut', x: 53, y: 25, icon: 'H', name: N('荒原老屋', 'The Ringmaster\'s Hut') },
   { id: 'colosseum', x: 18, y: 40, icon: 'C', name: N('鬥技場', 'Colosseum') },
-  { id: 'culttower', x: 67, y: 50, icon: 'W', name: N('狂信者之塔', 'Tower of Zealots') },
+  { id: 'culttower', x: 67, y: 50, icon: 'W', name: N('沉默教團之塔', 'Tower of the Silent Order') },
   { id: 'r_frostvale', x: 13, y: 6, icon: 'O', name: N('霜石鎮', 'Frostvale') },
-  { id: 'wormbelly', x: 14, y: 21, icon: 'D', name: N('流沙', 'Quicksand') },
-  { id: 'spire', x: 40, y: 26, icon: 'Z', name: N('審判之塔', 'Spire of Judgement') },
-  { id: 'lair1', x: 23, y: 9, icon: 'D', name: N('紅龍之巢', 'Red Dragon\'s Lair') },
-  { id: 'lair2', x: 6, y: 4, icon: 'D', name: N('冰龍之巢', 'Ice Dragon\'s Lair') },
-  { id: 'lair3', x: 66, y: 41, icon: 'D', name: N('暴風龍之巢', 'Storm Dragon\'s Lair') },
-  { id: 'lair4', x: 30, y: 21, icon: 'D', name: N('大地龍之巢', 'Earth Dragon\'s Lair') },
-  { id: 'lair5', x: 12, y: 50, icon: 'D', name: N('聖龍之巢', 'Holy Dragon\'s Lair') },
-  { id: 'lair6', x: 47, y: 35, icon: 'D', name: N('骸骨龍之巢', 'Bone Dragon\'s Lair') },
-  { id: 'lair7', x: 74, y: 44, icon: 'D', name: N('黃金龍之巢', 'Gold Dragon\'s Lair') },
-  { id: 'lair8', x: 36, y: 6, icon: 'D', name: N('天空龍之巢', 'Sky Dragon\'s Lair') },
+  { id: 'wormbelly', x: 14, y: 21, icon: 'D', name: N('鏡蟲之穴', 'The Mirror Worm\'s Lair') },
+  { id: 'spire', x: 40, y: 26, icon: 'Z', name: N('安息之塔', 'Tower of Rest') },
+  { id: 'lair1', x: 23, y: 9, icon: 'D', name: N('赤之獸的巢', 'Den of the Crimson Discord') },
+  { id: 'lair2', x: 6, y: 4, icon: 'D', name: N('霜之獸的巢', 'Den of the Rime Discord') },
+  { id: 'lair3', x: 66, y: 41, icon: 'D', name: N('嵐之獸的巢', 'Den of the Gale Discord') },
+  { id: 'lair4', x: 30, y: 21, icon: 'D', name: N('岩之獸的巢', 'Den of the Stone Discord') },
+  { id: 'lair5', x: 12, y: 50, icon: 'D', name: N('光之獸的巢', 'Den of the Light Discord') },
+  { id: 'lair6', x: 47, y: 35, icon: 'D', name: N('骸之獸的巢', 'Den of the Bone Discord') },
+  { id: 'lair7', x: 74, y: 44, icon: 'D', name: N('金之獸的巢', 'Den of the Gold Discord') },
+  { id: 'lair8', x: 36, y: 6, icon: 'D', name: N('空之獸的巢', 'Den of the Void Discord') },
 ];
 // the world before the Fall
 function buildBalance() {
@@ -232,7 +232,7 @@ export function makeDungeon(id, o) {
 const art = (lines) => lines.map((l) => l.padEnd(lines[0].length, ' '));
 export const SETS = {
   // the opera house: the stage, the seats, the dressing room, and the rafters above
-  opera: { theme: 'opera', look: 'opera', music: 'opera', name: N('月光歌劇院', 'Moonlight Opera House'), tiles: art([
+  opera: { theme: 'opera', look: 'opera', music: 'opera', name: N('月光音樂廳', 'Moonlight Concert Hall'), tiles: art([
     '############################',
     '#==========================#',
     '#=pp=====rrrrrrrrrr=====pp=#',
@@ -252,7 +252,7 @@ export const SETS = {
     '############dd##############',
   ]) },
   // the imperial camp by the river
-  camp: { theme: 'empire', look: 'empire', music: 'empire', name: N('帝國營地', 'Imperial Camp'), enc: 'camp', bg: 'field', tiles: art([
+  camp: { theme: 'empire', look: 'empire', music: 'empire', name: N('聖詠院營地', 'Choir Camp'), enc: 'camp', bg: 'field', tiles: art([
     '....T....T.....T....T.....',
     '.|||||||||||||||||||||||..',
     '.|MMMMMM......MMMMMM...|..',
@@ -268,7 +268,7 @@ export const SETS = {
     '........,,.........~~~~~~~',
   ]) },
   // the throne hall and banquet of the Emperor
-  palace: { theme: 'castle', look: 'empire', music: 'empire', name: N('帝國宮殿', 'Imperial Palace'), tiles: art([
+  palace: { theme: 'castle', look: 'empire', music: 'empire', name: N('聖詠院大殿', 'Great Hall of the Choir'), tiles: art([
     '##########################',
     '#pp:::::::::k::::::::::pp#',
     '#::::::::rrrrrr::::::::::#',
@@ -285,7 +285,7 @@ export const SETS = {
     '##########dd##############',
   ]) },
   // the three Pillars on the Floating Isle
-  pillars: { theme: 'shrine', look: 'shrine', music: 'vissek', name: N('三柱祭壇', 'The Three Pillars'), tiles: art([
+  pillars: { theme: 'shrine', look: 'shrine', music: 'vissek', name: N('三鐘之間', 'Hall of Three Bells'), tiles: art([
     '                          ',
     '   ____________________   ',
     '  __S______S_______S___   ',
@@ -301,7 +301,7 @@ export const SETS = {
     '          rrrr            ',
   ]) },
   // the Solitary Isle: Tobin's house, the beach, the cliff
-  solitary: { theme: 'ruin', look: 'ruin', music: 'ruin', name: N('孤島', 'Solitary Isle'), tiles: art([
+  solitary: { theme: 'ruin', look: 'ruin', music: 'ruin', name: N('燈塔孤島', 'Lighthouse Isle'), tiles: art([
     '~~~~~~~~~~~~~~~~~~~~~~~~',
     '~~~~~~~^^^^^^^^~~~~~~~~~',
     '~~~~~~^^aaaaaa^^~~~~~~~~',
@@ -318,7 +318,7 @@ export const SETS = {
     '~~~~~~~~~~~~~~~~~~~~~~~~',
   ]) },
   // the god's throne at the top of the Spire
-  throne: { theme: 'dark', look: 'dark', music: 'final', name: N('神座', 'The Throne'), tiles: art([
+  throne: { theme: 'dark', look: 'dark', music: 'final', name: N('塔頂', 'The Summit'), tiles: art([
     '  ##################  ',
     '  #mmmmmmmkmmmmmmm#   ',
     '  #mmmmmm_____mmmm#   ',
@@ -330,8 +330,8 @@ export const SETS = {
     '  #________r______#   ',
     '  ##########<######   ',
   ]) },
-  // the Blackhawk's deck (and later the Goldwing's)
-  deck: { theme: 'ship', look: 'ship', music: 'airship', name: N('飛空艇甲板', 'Airship Deck'), tiles: art([
+  // the cloud whale's back
+  deck: { theme: 'ship', look: 'ship', music: 'airship', name: N('雲鯨之背', 'Nimbus\'s Back'), tiles: art([
     '                        ',
     '   eeeeeeeeeeeeeeeee    ',
     '  eeeeeeeeeeeeeeeeeee   ',
@@ -348,10 +348,10 @@ export const SETS = {
 const TOWNS = {
   frostvale: { name: N('霜石鎮', 'Frostvale'), theme: 'snow', look: 'snow', ground: '*', edge: 'T', music: 'snow', tier: 1, bg: 'snow', north: true,
     buildings: [{ kind: 'house', name: N('約恩的家', 'Jon\'s House') }, { kind: 'item' }, { kind: 'weapon' }, { kind: 'armor' }, { kind: 'inn' }, { kind: 'hall', name: N('長老之家', 'Elder\'s Hall') }] },
-  sularis: { name: N('蘇拉斯城', 'Sularis Castle'), theme: 'castle', look: 'castle', ground: '_', edge: '#', music: 'castle', tier: 1, bg: 'desert',
-    buildings: [{ kind: 'hall', name: N('王座之間', 'Throne Room') }, { kind: 'item' }, { kind: 'inn' }, { kind: 'weapon' }, { kind: 'house', name: N('機械室', 'Engine Room') }, { kind: 'tools' }] },
-  hideout: { name: N('黎明軍基地', 'Dawnline Hideout'), theme: 'cave', look: 'cave', ground: ':', edge: '#', music: 'dawn', tier: 2, bg: 'cave',
-    buildings: [{ kind: 'hall', name: N('作戰室', 'War Room') }, { kind: 'item' }, { kind: 'inn' }, { kind: 'armor' }] },
+  sularis: { name: N('蘇拉斯風琴城', 'Sularis'), theme: 'castle', look: 'castle', ground: '_', edge: '#', music: 'castle', tier: 1, bg: 'desert',
+    buildings: [{ kind: 'hall', name: N('風琴室', 'Organ Hall') }, { kind: 'item' }, { kind: 'inn' }, { kind: 'weapon' }, { kind: 'house', name: N('工坊', 'Workshop') }, { kind: 'tools' }] },
+  hideout: { name: N('無聲者之谷', 'Valley of the Unsung'), theme: 'cave', look: 'cave', ground: ':', edge: '#', music: 'dawn', tier: 2, bg: 'cave',
+    buildings: [{ kind: 'hall', name: N('長老之家', 'Elder\'s House') }, { kind: 'item' }, { kind: 'inn' }, { kind: 'armor' }] },
   southwind: { name: N('南風鎮', 'Southwind'), theme: 'town', ground: '.', edge: 'T', music: 'town', tier: 2, bg: 'field',
     buildings: [{ kind: 'pub' }, { kind: 'item' }, { kind: 'weapon' }, { kind: 'armor' }, { kind: 'inn' }, { kind: 'house', name: N('富商的宅邸', 'Merchant\'s Manor') }] },
   kasumi: { name: N('霞之國', 'Kasumi'), theme: 'castle', look: 'castle', ground: '_', edge: '#', music: 'castle', tier: 2, bg: 'castle',
@@ -362,9 +362,9 @@ const TOWNS = {
     buildings: [{ kind: 'pub' }, { kind: 'house' }, { kind: 'weapon' }, { kind: 'armor' }, { kind: 'item' }, { kind: 'relic' }] },
   gilden: { name: N('金鍍城', 'Gilden'), theme: 'town', ground: '.', edge: 'T', music: 'town', tier: 3, bg: 'field',
     buildings: [{ kind: 'house', name: N('歐威爾公爵的宅邸', 'Duke Orwell\'s Manor') }, { kind: 'item' }, { kind: 'weapon' }, { kind: 'armor' }, { kind: 'inn' }, { kind: 'relic' }] },
-  vexhold: { north: true, name: N('帝都威克斯', 'Vexhold'), theme: 'empire', look: 'empire', ground: 'M', edge: '#', music: 'empire', tier: 4, bg: 'empire',
+  vexhold: { north: true, name: N('聖詠都威克斯', 'Vexhold'), theme: 'empire', look: 'empire', ground: 'M', edge: '#', music: 'empire', tier: 4, bg: 'empire',
     buildings: [{ kind: 'pub' }, { kind: 'item' }, { kind: 'weapon' }, { kind: 'armor' }, { kind: 'inn' }, { kind: 'relic' }] },
-  samar: { name: N('隱村薩瑪', 'Samar'), theme: 'town', ground: '.', edge: 'T', music: 'town', tier: 4, bg: 'forest',
+  samar: { name: N('書庫村薩瑪', 'Samar'), theme: 'town', ground: '.', edge: 'T', music: 'town', tier: 4, bg: 'forest',
     buildings: [{ kind: 'house', name: N('波洛的家', 'Bolo\'s House') }, { kind: 'item' }, { kind: 'weapon' }, { kind: 'armor' }, { kind: 'inn' }, { kind: 'relic' }] },
   // after the Fall
   tidewatch: { name: N('潮望鎮', 'Tidewatch'), theme: 'ruin', look: 'ruin', ground: 'a', edge: 'j', music: 'ruin', tier: 5, bg: 'ruin',
@@ -375,7 +375,7 @@ const TOWNS = {
     buildings: [{ kind: 'house', name: N('孤兒們的家', 'The Children\'s House') }, { kind: 'house' }, { kind: 'inn' }, { kind: 'item' }] },
   crumbleton: { name: N('傾城', 'Crumbleton'), theme: 'ruin', look: 'ruin', ground: 'a', edge: 'j', music: 'ruin', tier: 5, bg: 'ruin',
     buildings: [{ kind: 'house', name: N('快要倒塌的房子', 'The Leaning House') }, { kind: 'item' }, { kind: 'weapon' }, { kind: 'armor' }, { kind: 'inn' }, { kind: 'relic' }] },
-  r_wildhut: { name: N('荒原老屋', 'Old Hut'), theme: 'ruin', look: 'ruin', ground: 'a', edge: 'j', music: 'ruin', tier: 6, bg: 'ruin',
+  r_wildhut: { name: N('荒原老屋', 'The Ringmaster\'s Hut'), theme: 'ruin', look: 'ruin', ground: 'a', edge: 'j', music: 'ruin', tier: 6, bg: 'ruin',
     buildings: [{ kind: 'house', name: N('老人的家', 'The Old Man\'s House') }, { kind: 'item' }] },
   r_frostvale: { name: N('霜石鎮', 'Frostvale'), theme: 'snow', look: 'snow', ground: '*', edge: 'T', music: 'snow', tier: 6, bg: 'snow', north: true,
     buildings: [{ kind: 'house' }, { kind: 'item' }, { kind: 'weapon' }, { kind: 'armor' }, { kind: 'inn' }, { kind: 'relic' }] },
@@ -387,23 +387,23 @@ const DUNGEONS = {
   kolan:     { name: N('克蘭山', 'Mt. Kolan'), floors: 3, theme: 'cave', enc: 'kolan', seed: 23, bg: 'cave', chests: { 1: [{ item: 'potion' }, { item: 'buckler' }], 2: [{ gold: 500 }, { item: 'ether' }], 3: [{ item: 'mithrilclaw' }, { item: 'phoenix' }] } },
   river:     { name: N('雷鳴河', 'Thunder River'), floors: 3, theme: 'cave', look: 'cave', enc: 'river', seed: 31, bg: 'water', water: true, chests: { 1: [{ item: 'potion' }], 2: [{ item: 'echo' }, { gold: 700 }], 3: [{ item: 'ether' }] } },
   swtunnel:  { name: N('南風地下道', 'Southwind Tunnels'), floors: 2, theme: 'cave', enc: 'southwind', seed: 41, bg: 'cave', chests: { 1: [{ item: 'hipotion' }, { gold: 900 }], 2: [{ item: 'mithrilvest' }, { item: 'ether' }] } },
-  ferry:     { name: N('冥河渡船', 'Ferry of the Departed'), floors: 3, theme: 'dark', look: 'dark', enc: 'ferry', seed: 53, bg: 'dark', music: 'sad', chests: { 1: [{ item: 'phoenix' }], 2: [{ item: 'kotetsu' }, { gold: 1200 }], 3: [{ item: 'whitecape' }] } },
+  ferry:     { name: N('沉鐘沼澤', 'Drowned Bell Marsh'), floors: 3, theme: 'dark', look: 'dark', enc: 'ferry', seed: 53, bg: 'dark', music: 'sad', chests: { 1: [{ item: 'phoenix' }], 2: [{ item: 'kotetsu' }, { gold: 1200 }], 3: [{ item: 'whitecape' }] } },
   trench:    { name: N('海蛇洞窟', 'Serpent Trench'), floors: 2, theme: 'cave', enc: 'trench', seed: 61, bg: 'water', water: true, chests: { 1: [{ item: 'hipotion' }, { gold: 1500 }], 2: [{ item: 'trident' }] } },
   raintower: { name: N('雨城之塔', 'Rainhold Tower'), floors: 3, theme: 'tower', look: 'tower', enc: 'rain', seed: 71, bg: 'castle', exitPlace: 'rainhold', chests: { 1: [{ item: 'ether' }, { gold: 2000 }], 2: [{ item: 'bards' }, { item: 'hipotion' }], 3: [{ item: 'regal' }, { item: 'charmbangle' }] } },
-  arcanum:   { name: N('魔導研究所', 'The Arcanum'), floors: 3, theme: 'empire', look: 'empire', enc: 'lab', seed: 83, bg: 'empire', exitPlace: 'vexhold', music: 'empire', chests: { 1: [{ item: 'ether' }, { gold: 3000 }], 2: [{ item: 'rune' }, { item: 'remedy' }], 3: [{ item: 'goldhairpin' }, { item: 'hipotion' }] } },
-  gate:      { name: N('星門', 'Astral Gate'), floors: 2, theme: 'cave', look: 'cave', enc: 'gate', seed: 97, bg: 'cave', lava: true, chests: { 1: [{ item: 'ether' }, { item: 'goldshield' }], 2: [{ item: 'flametongue' }, { gold: 4000 }] } },
-  burning:   { name: N('燃燒的房子', 'The Burning House'), floors: 2, theme: 'tower', look: 'dark', enc: 'samar', seed: 101, bg: 'dark', lava: true, exitPlace: 'samar', chests: { 1: [{ item: 'ether' }], 2: [{ item: 'firerod' }] } },
+  arcanum:   { name: N('熔晶所', 'The Crystal Foundry'), floors: 3, theme: 'empire', look: 'empire', enc: 'lab', seed: 83, bg: 'empire', exitPlace: 'vexhold', music: 'empire', chests: { 1: [{ item: 'ether' }, { gold: 3000 }], 2: [{ item: 'rune' }, { item: 'remedy' }], 3: [{ item: 'goldhairpin' }, { item: 'hipotion' }] } },
+  gate:      { name: N('始源之門', 'Origin Gate'), floors: 2, theme: 'cave', look: 'cave', enc: 'gate', seed: 97, bg: 'cave', lava: true, chests: { 1: [{ item: 'ether' }, { item: 'goldshield' }], 2: [{ item: 'flametongue' }, { gold: 4000 }] } },
+  burning:   { name: N('燃燒的書庫', 'The Burning Archive'), floors: 2, theme: 'tower', look: 'dark', enc: 'samar', seed: 101, bg: 'dark', lava: true, exitPlace: 'samar', chests: { 1: [{ item: 'ether' }], 2: [{ item: 'firerod' }] } },
   valley:    { name: N('星靈之谷', 'Astral Valley'), floors: 2, theme: 'cave', look: 'cave', enc: 'valley', seed: 109, bg: 'forest', chests: { 1: [{ item: 'hipotion' }, { item: 'icerod' }], 2: [{ item: 'thunderrod' }, { item: 'turbo' }] } },
-  isle:      { name: N('浮空大陸', 'The Floating Isle'), floors: 3, theme: 'shrine', look: 'shrine', enc: 'isle', seed: 127, bg: 'sky', music: 'vissek', chests: { 1: [{ item: 'turbo' }, { item: 'diamondshield' }], 2: [{ item: 'murasame' }, { item: 'xpotion' }], 3: [{ item: 'hermesheels' }] } },
+  isle:      { name: N('天空鐘樓', 'The Sky Belfry'), floors: 3, theme: 'shrine', look: 'shrine', enc: 'isle', seed: 127, bg: 'sky', music: 'vissek', chests: { 1: [{ item: 'turbo' }, { item: 'diamondshield' }], 2: [{ item: 'murasame' }, { item: 'xpotion' }], 3: [{ item: 'hermesheels' }] } },
   // after the Fall
-  r_sularis: { name: N('沉沙之城', 'Sunken Sularis'), floors: 2, theme: 'castle', look: 'cave', enc: 'ruinsouth', seed: 151, bg: 'castle', chests: { 1: [{ item: 'xpotion' }, { item: 'goldhelm' }], 2: [{ item: 'airanchor' }] } },
-  tomb:      { name: N('芙蕾雅之墓', 'Freya\'s Tomb'), floors: 3, theme: 'dark', look: 'dark', enc: 'tomb', seed: 163, bg: 'dark', music: 'sad', chests: { 1: [{ item: 'turbo' }], 2: [{ item: 'crystalsword' }, { item: 'xpotion' }], 3: [{ item: 'trumps' }] } },
-  dream:     { name: N('夢魘之城', 'Castle of Nightmares'), floors: 3, theme: 'dark', look: 'dark', enc: 'dream', seed: 173, bg: 'dark', music: 'sad', chests: { 1: [{ item: 'aura' }], 2: [{ item: 'xpotion' }, { item: 'genjishield' }], 3: [{ item: 'redcap' }] } },
-  phoenixcave: { name: N('不死鳥洞窟', 'Phoenix Cave'), floors: 3, theme: 'cave', look: 'cave', enc: 'phoenix', seed: 181, bg: 'cave', lava: true, chests: { 1: [{ item: 'xpotion' }, { item: 'valiance' }], 2: [{ item: 'sasuke' }, { item: 'turbo' }], 3: [{ item: 'growegg' }] } },
-  culttower: { name: N('狂信者之塔', 'Tower of Zealots'), floors: 4, theme: 'tower', look: 'tower', enc: 'cult', seed: 191, bg: 'tower', chests: { 1: [{ item: 'magusrod' }], 2: [{ item: 'circlet' }, { item: 'xpotion' }], 3: [{ item: 'davincibrush' }], 4: [{ item: 'minerva' }] } },
+  r_sularis: { name: N('沉沙之城', 'The Sunken City'), floors: 2, theme: 'castle', look: 'cave', enc: 'ruinsouth', seed: 151, bg: 'castle', chests: { 1: [{ item: 'xpotion' }, { item: 'goldhelm' }], 2: [{ item: 'airanchor' }] } },
+  tomb:      { name: N('雲鯨之墓', 'The Whale\'s Graveyard'), floors: 3, theme: 'dark', look: 'dark', enc: 'tomb', seed: 163, bg: 'dark', music: 'sad', chests: { 1: [{ item: 'turbo' }], 2: [{ item: 'crystalsword' }, { item: 'xpotion' }], 3: [{ item: 'trumps' }] } },
+  dream:     { name: N('霞之國廢墟', 'Ruins of Kasumi'), floors: 3, theme: 'dark', look: 'dark', enc: 'dream', seed: 173, bg: 'dark', music: 'sad', chests: { 1: [{ item: 'aura' }], 2: [{ item: 'xpotion' }, { item: 'genjishield' }], 3: [{ item: 'redcap' }] } },
+  phoenixcave: { name: N('回音洞窟', 'Echo Cave'), floors: 3, theme: 'cave', look: 'cave', enc: 'phoenix', seed: 181, bg: 'cave', lava: true, chests: { 1: [{ item: 'xpotion' }, { item: 'valiance' }], 2: [{ item: 'sasuke' }, { item: 'turbo' }], 3: [{ item: 'growegg' }] } },
+  culttower: { name: N('沉默教團之塔', 'Tower of the Silent Order'), floors: 4, theme: 'tower', look: 'tower', enc: 'cult', seed: 191, bg: 'tower', chests: { 1: [{ item: 'magusrod' }], 2: [{ item: 'circlet' }, { item: 'xpotion' }], 3: [{ item: 'davincibrush' }], 4: [{ item: 'minerva' }] } },
   icecave:   { name: N('冰洞', 'Ice Cavern'), floors: 2, theme: 'snow', look: 'cave', enc: 'icecave', seed: 197, bg: 'snow', exitPlace: 'r_frostvale', chests: { 1: [{ item: 'iceshield' }, { item: 'xpotion' }], 2: [{ item: 'moogle' }] } },
-  wormbelly: { name: N('沙蟲之腹', 'Belly of the Worm'), floors: 2, theme: 'dark', look: 'dark', enc: 'ruin', seed: 211, bg: 'dark', chests: { 1: [{ item: 'turbo' }], 2: [{ item: 'offering' }] } },
-  spire:     { name: N('審判之塔', 'Spire of Judgement'), floors: 5, theme: 'dark', look: 'dark', enc: 'spire', seed: 223, bg: 'tower', music: 'final', w: 30, h: 22, chests: { 1: [{ item: 'megalixir' }, { item: 'forcearmor' }], 2: [{ item: 'atma' }, { item: 'xpotion' }], 3: [{ item: 'paladinshield' }, { item: 'megalixir' }], 4: [{ item: 'lightbringer' }, { item: 'heroring' }], 5: [{ item: 'regalcrown' }] } },
+  wormbelly: { name: N('鏡廳', 'Hall of Mirrors'), floors: 2, theme: 'dark', look: 'dark', enc: 'ruin', seed: 211, bg: 'dark', chests: { 1: [{ item: 'turbo' }], 2: [{ item: 'offering' }] } },
+  spire:     { name: N('安息之塔', 'Tower of Rest'), floors: 5, theme: 'dark', look: 'dark', enc: 'spire', seed: 223, bg: 'tower', music: 'final', w: 30, h: 22, chests: { 1: [{ item: 'megalixir' }, { item: 'forcearmor' }], 2: [{ item: 'atma' }, { item: 'xpotion' }], 3: [{ item: 'paladinshield' }, { item: 'megalixir' }], 4: [{ item: 'lightbringer' }, { item: 'heroring' }], 5: [{ item: 'regalcrown' }] } },
 };
 for (let i = 1; i <= 8; i++) DUNGEONS['lair' + i] = { name: PLACES_R.find((p) => p.id === 'lair' + i).name, floors: 1, theme: i === 2 ? 'snow' : 'cave', look: 'cave', enc: 'ruin', seed: 300 + i * 17, bg: i === 2 ? 'snow' : 'cave', lava: i === 1, chests: { 1: [{ item: 'xpotion' }] } };
 
