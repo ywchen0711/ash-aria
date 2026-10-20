@@ -1,11 +1,11 @@
 // node tools/test.mjs — quick checks: the data hangs together, every map is sound, every unique command works, a short
 // balance run. (The whole story is played by tools/story.mjs.)
-import { CHARS, SPELLS, ASTRALS, ITEMS, GEAR, TOOLS, BLITZ, IAI, DANCES, LORES, FORTUNE, MAGITEK, canEquip, shopList } from '../js/data.js?v=3';
-import { MONSTERS, MSKILLS, ZONES } from '../js/monsters.js?v=3';
-import { newMember, gainXp, expFor, maxhp } from '../js/party.js?v=3';
-import { createBattle, perform, tick, enemyAct, alive, foesOf } from '../js/battle.js?v=3';
-import { buildMaps, TILE, WALK, BARRIERS, PLACES_B, PLACES_R } from '../js/maps.js?v=3';
-import { decorate, CHAPTERS } from '../js/story.js?v=3';
+import { CHARS, SPELLS, ASTRALS, ITEMS, GEAR, TOOLS, BLITZ, IAI, DANCES, LORES, FORTUNE, MAGITEK, canEquip, shopList } from '../js/data.js?v=4';
+import { MONSTERS, MSKILLS, ZONES } from '../js/monsters.js?v=4';
+import { newMember, gainXp, expFor, maxhp } from '../js/party.js?v=4';
+import { createBattle, perform, tick, enemyAct, alive, foesOf } from '../js/battle.js?v=4';
+import { buildMaps, TILE, WALK, BARRIERS, PLACES_B, PLACES_R } from '../js/maps.js?v=4';
+import { decorate, CHAPTERS } from '../js/story.js?v=4';
 import { fight } from './sim.mjs';
 
 // the same dice every run, so a result never depends on luck

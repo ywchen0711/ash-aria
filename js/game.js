@@ -1,15 +1,15 @@
 // ASH ARIA — the engine: title, chapters, walking the two worlds, towns and dungeons, the airship, talking, menus, shops,
 // inns, saving, battles (battleview.js) and the ending. The story (story.js) drives everything through the script API `A`.
-import { T, EN, setLang } from './i18n.js?v=3';
-import { CHARS, ITEMS, SPELLS, GEAR, ASTRALS, TOOLS, SLOTS, FX, canEquip, shopList, CMD } from './data.js?v=3';
-import { newMember, maxhp, maxmp, atk, defense, mdefense, str, mag, spd, vit, healFull, bagAdd, bagTake, equip, optimum, expFor, alive, hasFx, levelTo } from './party.js?v=3';
-import { tile, person, airship as shipSprite } from './art.js?v=3';
-import { buildMaps, TILE, WALK, LANDABLE, BARRIERS, worldZone, placeOf, PLACES_B, PLACES_R } from './maps.js?v=3';
-import { encounter, MONSTERS } from './monsters.js?v=3';
-import { runBattle } from './battleview.js?v=3';
-import { decorate, SPEAKERS, CHAPTERS, ending as endingLines, opening } from './story.js?v=3';
-import { music, sfx, toggleMute, isMuted, unlock } from './audio.js?v=3';
-import * as UI from './ui.js?v=3';
+import { T, EN, setLang } from './i18n.js?v=4';
+import { CHARS, ITEMS, SPELLS, GEAR, ASTRALS, TOOLS, SLOTS, FX, canEquip, shopList, CMD } from './data.js?v=4';
+import { newMember, maxhp, maxmp, atk, defense, mdefense, str, mag, spd, vit, healFull, bagAdd, bagTake, equip, optimum, expFor, alive, hasFx, levelTo } from './party.js?v=4';
+import { tile, person, airship as shipSprite } from './art.js?v=4';
+import { buildMaps, TILE, WALK, LANDABLE, BARRIERS, worldZone, placeOf, PLACES_B, PLACES_R } from './maps.js?v=4';
+import { encounter, MONSTERS } from './monsters.js?v=4';
+import { runBattle } from './battleview.js?v=4';
+import { decorate, SPEAKERS, CHAPTERS, ending as endingLines, opening } from './story.js?v=4';
+import { music, sfx, toggleMute, isMuted, unlock } from './audio.js?v=4';
+import * as UI from './ui.js?v=4';
 const { say, says, ask, menu, box, text, S: SC, VW, VH } = UI;
 
 const canvas = document.getElementById('game'), g = canvas.getContext('2d');
@@ -27,7 +27,7 @@ function fitScreen() {
   glCanvas.style.display = hdOn() ? 'block' : 'none';
 }
 addEventListener('resize', fitScreen); fitScreen(); try { new ResizeObserver(fitScreen).observe(document.getElementById('wrap')); } catch (e) { /* ignore */ }
-if (!/fx=low/.test(location.search)) import('./hd.js?v=3').then((m) => { try { HDR = m.create(glCanvas); } catch (e) { HDR = null; } fitScreen(); }).catch(() => {});
+if (!/fx=low/.test(location.search)) import('./hd.js?v=4').then((m) => { try { HDR = m.create(glCanvas); } catch (e) { HDR = null; } fitScreen(); }).catch(() => {});
 function setHD(on) { hdPref = on; try { localStorage.setItem('aa.hd', on ? '1' : '0'); } catch (e) { /* ignore */ } fitScreen(); }
 const hdLabel = () => T('畫面：', 'Graphics: ') + (hdPref ? 'HD-2D' : T('經典', 'Classic'));
 
@@ -92,7 +92,7 @@ const A = {
   async talk(lines) { for (const l of lines) { if (typeof l === 'function') { await l(A); continue; } const [who, zh, en] = l; await say((who ? nameOf(who) + T('：', ': ') : '') + T(zh, en)); } },
   ask: (zh, en, opts) => ask(T(zh, en), opts.map((o) => T(...o))),
   goal: (zh, en) => { S.goal = [zh, en]; },
-  chapter: (n) => { S.ch = n; return chapterCard(n); },
+  chapter: (n) => { const was = CHAPTERS[S.ch], c = CHAPTERS[n]; S.ch = n; if (was && c && was.k === c.k && !c.part) return Promise.resolve(); return chapterCard(n); },
   has: (it) => (S.bag[it] || 0) > 0, give: (it, n = 1) => bagAdd(S.bag, it, n), take: (it, n = 1) => bagTake(S.bag, it, n), gil: (n) => { S.gil = Math.max(0, S.gil + n); },
   async item(it, n = 1) { bagAdd(S.bag, it, n); sfx('chest'); const nmI = T((ITEMS[it] || GEAR[it] || TOOLS[it]).name); await say(T(`得到了${nmI}${n > 1 ? `×${n}` : ''}！`, `Received ${nmI}${n > 1 ? ` ×${n}` : ''}!`)); },
   async tool(id) { S.tools = S.tools || []; if (!S.tools.includes(id)) S.tools.push(id); sfx('chest'); await say(T(`得到了機械道具「${TOOLS[id].name[0]}」！`, `Received the tool ${TOOLS[id].name[1]}!`)); },
@@ -456,7 +456,7 @@ async function check() {
     S.flags['chest_' + c.id] = true; sfx('chest');
     if (c.gold) { S.gil += c.gold; return say(T(`打開了寶箱。得到了 ${c.gold} 金幣！`, `Inside the chest: ${c.gold} gil!`)); }
     if (TOOLS[c.item]) return A.tool(c.item);
-    bagAdd(S.bag, c.item); return say(T(`打開了寶箱。得到了${nameItem(c.item)}！`, `Inside the chest: ${nameItem(c.item)}!`));
+    bagAdd(S.bag, c.item, c.n || 1); return say(T(`打開了寶箱。得到了${nameItem(c.item)}${c.n > 1 ? ` ×${c.n}` : ""}！`, `Inside the chest: ${nameItem(c.item)}${c.n > 1 ? ` ×${c.n}` : ""}!`));
   });
   const ck = MAP.checks && (MAP.checks[`${fx},${fy}`] || MAP.checks[`${P.x},${P.y}`]);
   if (ck) return runScript(ck);
@@ -492,6 +492,7 @@ function drawCard() {
   text(T(C.act || ['', '']), 128, 70, { align: 'center', size: 8 * SC, color: '#a89ac8' });
   text(T(C.no || ['', '']), 128, 92, { align: 'center', size: 10 * SC, color: '#ffe080' });
   text(T(C.title), 128, 114, { align: 'center', size: 13 * SC });
+  if (C.part) text(T(C.part), 128, 136, { align: 'center', size: 8 * SC, color: '#c8d8f0' });
   if (cardT > 1.5 && Math.floor(ftime * 2) % 2) text(T('按確定鍵', 'Press OK'), 128, 180, { align: 'center', size: 7 * SC, color: '#aaa' });
   g.globalAlpha = 1;
 }
@@ -554,7 +555,7 @@ function fieldSprites(camX, camY) {
   for (let k = followers; k >= 0; k--) { const q = pos(k); if (!q) continue; const [x, y, d] = q; out.push({ x, y: y - 0.01 * k, img: person(CHARS[ids[k] || ids[0] || 'aria'].look, k === 0 ? P.dir : d, P.moving ? P.frame : 0) }); }
   return out;
 }
-import { monster as monsterArt } from './art.js?v=3';
+import { monster as monsterArt } from './art.js?v=4';
 const monsterImg = (md) => monsterArt(md.art, md.col);
 function hdMap() {
   const kind = MAP.world ? 'world' : MAP.town ? 'town' : ['cave', 'tower', 'dark', 'shrine', 'castle'].includes(MAP.theme) ? MAP.theme : 'town';

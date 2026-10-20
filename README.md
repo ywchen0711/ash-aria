@@ -9,6 +9,12 @@ and the bells are made by melting down Astrals. A gentle conductor wants the who
 Fifteen companions with their own battle commands, Active Time Battles, Astrals that summon and teach magic, and a story
 in four acts. The full story bible is in [STORY.md](STORY.md).
 
+十二章的主線，加上 41 件信使委託、20 張賞金榜、13 段同伴篇章和十層的灰潮深淵。全部玩完的估算時間約 27 小時（有效率的玩法）；
+第一次玩通常約 40–55 小時。
+
+Twelve chapters of story, plus 41 courier deliveries, 20 bounties, 13 companion episodes and a ten-floor abyss. An efficient
+run through everything is estimated at about 27 hours; a first playthrough usually takes 40–55.
+
 **Play:** https://ywchen0711.github.io/ash-aria/
 
 ## 操作 Controls
@@ -57,13 +63,16 @@ underneath (turn it off in the menu or with `?fx=low`).
 | `js/battleview.js` | 戰鬥畫面與每個指令的選單 |
 | `js/maps.js` | 兩個世界地圖（崩壞前／崩壞後）、城鎮與迷宮產生器、手繪場景 |
 | `js/story*.js` | 四幕的劇情腳本 |
+| `js/side.js` | 信使公會的委託與賞金榜 |
+| `js/episodes.js` | 十三段同伴篇章與灰潮深淵 |
+| `js/interludes.js` | 主線迷宮裡的「中途片刻」 |
 | `js/game.js` | 遊戲引擎：移動、選單、商店、存檔、雲鯨 |
 
 ## 測試 Tests
 
 ```
 npm test            # node tools/test.mjs：資料、地圖可達、每個指令、平衡
-npm run story       # node tools/story.mjs：從開頭自動玩到結局（約 5 分鐘）
+npm run story       # node tools/story.mjs：從開頭自動玩到結局，連支線一起，並估算遊玩時間（約 10 分鐘）
 ```
 
 `tools/story.mjs` plays the whole story on the real maps with the real scripts: it walks (or flies) to every place,

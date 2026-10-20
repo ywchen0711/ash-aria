@@ -1,6 +1,6 @@
 // node tools/load.mjs — build every map and put the story on it (catches mistakes without a browser)
-import { buildMaps } from '../js/maps.js?v=3';
-import { decorate, CHAPTERS } from '../js/story.js?v=3';
+import { buildMaps } from '../js/maps.js?v=4';
+import { decorate, CHAPTERS } from '../js/story.js?v=4';
 const M = buildMaps();
 decorate(M);
 let n = 0, npcs = 0, trig = 0;

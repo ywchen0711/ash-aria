@@ -1,6 +1,6 @@
 // ASH ARIA — Act III 轉 · The Long Silence (the lighthouse isle, Tidewatch, Nikko) and Act IV 合 · Echoes (finding everyone
 // again, the eight Discordant Beasts that swallowed Aria's notes, the Colosseum, the Tower of Rest and the last lullaby).
-import { ITEMS, GEAR } from './data.js?v=3';
+import { ITEMS, GEAR } from './data.js?v=4';
 const ch = (A) => A.S.ch;
 const has = (A, id) => A.hasMember(id);
 

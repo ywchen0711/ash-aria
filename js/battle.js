@@ -2,9 +2,9 @@
 //
 // Everyone's ATB gauge fills with speed (haste ×1.5, slow ×0.5). A full party gauge waits for a command; a full monster gauge
 // acts at once. In "wait" mode time stops while a menu is open. Actions return events for the screen to play.
-import { SPELLS, ITEMS, GEAR, ASTRALS, BLITZ, IAI, TOOLS, FORTUNE, DANCES, LORES, CHARS, STATUS, BAD, MAGITEK } from './data.js?v=3';
-import { MONSTERS, MSKILLS } from './monsters.js?v=3';
-import { atk, defense, mdefense, mag, str, spd, maxhp, maxmp, resists, weaponEl, hasFx, bagTake, bagAdd } from './party.js?v=3';
+import { SPELLS, ITEMS, GEAR, ASTRALS, BLITZ, IAI, TOOLS, FORTUNE, DANCES, LORES, CHARS, STATUS, BAD, MAGITEK } from './data.js?v=4';
+import { MONSTERS, MSKILLS } from './monsters.js?v=4';
+import { atk, defense, mdefense, mag, str, spd, maxhp, maxmp, resists, weaponEl, hasFx, bagTake, bagAdd } from './party.js?v=4';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const alive = (u) => u.hp > 0;

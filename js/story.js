@@ -1,9 +1,12 @@
 // ASH ARIA — the story: who stands where, what they say, and what happens. The four acts live in story1.js (起),
 // story2.js (承) and story3.js (轉・合); this file holds the shared kit, the chapter cards, the opening and the ending.
-import { act1 } from './story1.js?v=3';
-import { act2 } from './story2.js?v=3';
-import { act34 } from './story3.js?v=3';
-import { shopList } from './data.js?v=3';
+import { act1 } from './story1.js?v=4';
+import { act2 } from './story2.js?v=4';
+import { act34 } from './story3.js?v=4';
+import { shopList } from './data.js?v=4';
+import { side, SIDE_SPEAKERS, setPlaceNames } from './side.js?v=4';
+import { episodes } from './episodes.js?v=4';
+import { interludes } from './interludes.js?v=4';
 
 // people who speak but never fight
 export const SPEAKERS = {
@@ -16,37 +19,28 @@ export const SPEAKERS = {
   kirisa: ['霜鈴', 'Rimebell'], astral: ['星靈', 'Astral'], hart: ['哈特', 'Hart'], gale: ['蓋爾', 'Gale'], uma: ['烏瑪', 'Uma'], fox: ['雪狐', 'Snow Fox'], innkeeper: ['旅店老闆', 'Innkeeper'],
 };
 
-// chapter cards: act, number, title
+// chapter cards. The story keeps its own fine-grained steps (S.ch); the player sees twelve chapters, three to an act,
+// and a card only when the chapter changes (the three rivers of chapter 3 each get a part card of their own)
 const AC = { 1: ['第一幕　起・灰潮之歌', 'Act I · The Ashtide\'s Song'], 2: ['第二幕　承・沉默的聖詠', 'Act II · The Silent Chorale'], 3: ['第三幕　轉・長寂', 'Act III · The Long Silence'], 4: ['第四幕　合・回音', 'Act IV · Echoes'] };
-const CH = (act, zh, en, tzh, ten) => ({ act: AC[act], no: [zh, en], title: [tzh, ten], short: [`${zh} ${tzh}`, `${en}: ${ten}`] });
+const NUM = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
+const CH = (act, k, tzh, ten, part) => ({ act: AC[act], k, no: [k === 12 ? '終章' : `第${NUM[k]}章`, k === 12 ? 'Finale' : `Chapter ${k}`], title: [tzh, ten], part, short: [`${k === 12 ? '終章' : `第${NUM[k]}章`} ${tzh}`, `${k === 12 ? 'Finale' : `Chapter ${k}`}: ${ten}`] });
+const C1 = ['霜石鎮的裂鐘', 'The Cracked Bell of Frostvale'], C2 = ['風琴與回音', 'Organ and Echo'], C3 = ['三條河流', 'Three Rivers'], C4 = ['雪原上的指揮者', 'The Conductor on the Snow'];
+const C5 = ['大音樂會', 'The Grand Concert'], C6 = ['聖詠都', 'The City of the Chorale'], C7 = ['始源之門', 'The Origin Gate'], C8 = ['白花之谷', 'The Valley of White Flowers'];
+const C9 = ['終止符', 'The Final Rest'], C10 = ['長寂', 'The Long Silence'], C11 = ['八個音', 'Eight Notes'], C12 = ['灰燼詠嘆調', 'Ash Aria'];
 export const CHAPTERS = {
-  1: CH(1, '第一章', 'Chapter 1', '霜石鎮的裂鐘', 'The Cracked Bell of Frostvale'),
-  2: CH(1, '第二章', 'Chapter 2', '沒有影子的少女', 'The Girl Without a Shadow'),
-  3: CH(1, '第三章', 'Chapter 3', '沙漠風琴城', 'The Wind-Organ City'),
-  4: CH(1, '第四章', 'Chapter 4', '回音寺', 'The Echo Temple'),
-  5: CH(1, '第五章', 'Chapter 5', '無聲者之谷', 'The Valley of the Unsung'),
-  6: CH(1, '第六章', 'Chapter 6', '三條河流', 'Three Rivers'),
-  61: CH(1, '第六章 A', 'Chapter 6A', '洛恩・燈塔的鐘', 'Rowan: The Lighthouse Bell'),
-  62: CH(1, '第六章 B', 'Chapter 6B', '賽伊・霞鳴之刀', 'Sai: The Blade of Kasumei'),
-  63: CH(1, '第六章 C', 'Chapter 6C', '艾莉雅・回到北方', 'Aria: Back to the North'),
-  7: CH(1, '第七章', 'Chapter 7', '雪原上的指揮者', 'The Conductor on the Snow'),
-  8: CH(1, '第八章', 'Chapter 8', '雨城的聆聽者', 'The Listener of Rainhold'),
-  9: CH(1, '第九章', 'Chapter 9', '大音樂會', 'The Grand Concert'),
-  10: CH(2, '第十章', 'Chapter 10', '聖詠都', 'The City of the Chorale'),
-  11: CH(2, '第十一章', 'Chapter 11', '熔晶所', 'The Crystal Foundry'),
-  12: CH(2, '第十二章', 'Chapter 12', '始源之門', 'The Origin Gate'),
-  13: CH(2, '第十三章', 'Chapter 13', '審判', 'The Trial'),
-  14: CH(2, '第十四章', 'Chapter 14', '薩瑪書庫', 'The Archive of Samar'),
-  15: CH(2, '第十五章', 'Chapter 15', '星靈之谷', 'The Astral Valley'),
-  16: CH(2, '第十六章', 'Chapter 16', '天空鐘樓', 'The Sky Belfry'),
-  17: CH(2, '第十七章', 'Chapter 17', '終止符', 'The Final Rest'),
-  18: CH(3, '第十八章', 'Chapter 18', '燈塔', 'The Lighthouse'),
-  19: CH(3, '第十九章', 'Chapter 19', '沒有聲音的世界', 'A World Without Sound'),
-  20: CH(3, '第二十章', 'Chapter 20', '第一個同伴', 'The First Friend'),
-  21: CH(4, '第二十一章', 'Chapter 21', '沉沙之城', 'The Sunken City'),
-  22: CH(4, '第二十二章', 'Chapter 22', '回音', 'Echoes'),
-  33: CH(4, '第三十三章', 'Chapter 33', '安息之塔', 'The Tower of Rest'),
-  34: CH(4, '終章', 'Finale', '灰燼詠嘆調', 'Ash Aria'),
+  1: CH(1, 1, ...C1), 2: CH(1, 1, ...C1),
+  3: CH(1, 2, ...C2), 4: CH(1, 2, ...C2),
+  5: CH(1, 3, ...C3), 6: CH(1, 3, ...C3),
+  61: CH(1, 3, ...C3, ['洛恩・燈塔的鐘', 'Rowan: The Lighthouse Bell']), 62: CH(1, 3, ...C3, ['賽伊・霞鳴之刀', 'Sai: The Blade of Kasumei']), 63: CH(1, 3, ...C3, ['艾莉雅・回到北方', 'Aria: Back to the North']),
+  7: CH(1, 4, ...C4),
+  8: CH(1, 5, ...C5), 9: CH(1, 5, ...C5),
+  10: CH(2, 6, ...C6), 11: CH(2, 6, ...C6),
+  12: CH(2, 7, ...C7), 13: CH(2, 7, ...C7),
+  14: CH(2, 8, ...C8), 15: CH(2, 8, ...C8),
+  16: CH(2, 9, ...C9), 17: CH(2, 9, ...C9),
+  18: CH(3, 10, ...C10), 19: CH(3, 10, ...C10), 20: CH(3, 10, ...C10), 21: CH(3, 10, ...C10),
+  22: CH(4, 11, ...C11),
+  33: CH(4, 12, ...C12), 34: CH(4, 12, ...C12),
 };
 
 // ---------------------------------------------------------------- the kit the acts use
@@ -131,4 +125,6 @@ export function decorate(M) {
   act1(M, K);
   act2(M, K);
   act34(M, K);
+  setPlaceNames(M); side(M, K); episodes(M, K); interludes(M, K);
 }
+Object.assign(SPEAKERS, SIDE_SPEAKERS, { oldwoman: ['老婦人', 'Old Woman'] });

@@ -1,6 +1,6 @@
 // ASH ARIA — monsters and bosses, and the zones they live in. No DOM.
 // Stats come from the level (see stats()); each monster only says how it differs.
-import { LORES } from './data.js?v=3';
+import { LORES } from './data.js?v=4';
 
 // ---------------------------------------------------------------- monster moves (lores are moves too: Bolo learns them by seeing them)
 const MS = (zh, en, kind, power, target, extra = {}) => ({ name: [zh, en], kind, power, target, ...extra });
@@ -146,7 +146,7 @@ const M = [
   ['darkknight', '黑騎士', 'Dark Knight', 40, 'knight', ['#2a2a3a', '#c040ff'], { hp: 1.4, skills: { slash: 3, darkwave: 1 }, steal: ['xpotion', 'diamondshield'] }],
   ['hopefiend', '灰潮巨獸', 'Ash Behemoth', 42, 'beast', ['#7a3a2a', '#ffd040'], { boss: true, hp: 10, size: 1.9, skills: { rush: 2, flames: 1, gust: 1 }, steal: ['turbo', 'diamondvest'], ap: 24 }],
   ['tombghost', '墓之守', 'Tomb Warden', 41, 'ghost', ['#c8c8a0', '#ffd040'], { undead: true, weak: ['fire', 'holy'], skills: { soulcall: 0.3, drainbite: 2 }, steal: ['phoenix'] }],
-  ['tombking', '鯨墓的守墓人', 'Graveyard Keeper', 42, 'lord', ['#c8a040', '#ffffff'], { boss: true, hp: 8, size: 1.7, undead: true, weak: ['holy'], skills: { slash: 2, darkwave: 1, condemn: 0.5 }, steal: ['turbo', 'crystalhelm'], ap: 25 }],
+  ['tombking', '鯨墓的守墓人', 'Graveyard Keeper', 42, 'lord', ['#c8a040', '#ffffff'], { boss: true, hp: 6.5, size: 1.7, undead: true, weak: ['holy'], skills: { slash: 2, darkwave: 1, condemn: 0.5 }, steal: ['turbo', 'crystalhelm'], ap: 25 }],
   ['nightmare', '灰燼鍛冶師', 'Ash Smith', 45, 'smith', ['#5a2a6a', '#ff60ff'], { boss: true, hp: 12, size: 1.8, undead: true, weak: ['holy'], skills: { spores: 1, drainbite: 2, darkwave: 2, roulette: 0.3 }, steal: ['turbo', 'aura'], ap: 26 }],
   ['dreamshade', '夢之影', 'Dream Shade', 43, 'ghost', ['#3a2a5a', '#a080ff'], { undead: true, weak: ['holy'], skills: { hush: 1, darkwave: 1 }, steal: ['remedy'] }],
   ['phoenixwyrm', '火山龍', 'Lava Wyrm', 45, 'dragon', ['#a02a10', '#ffb030'], { hp: 1.5, absorb: ['fire'], weak: ['ice', 'water'], skills: { flames: 2, slash: 2 }, steal: ['xpotion'] }],
@@ -178,6 +178,51 @@ const M = [
   ['god2', '歐瑟・沉默聖歌', 'Orsay, Silent Hymn', 68, 'angel', ['#e0d0ff', '#ff4080'], { boss: true, hp: 7, size: 2, skills: { havoc: 1, heartless: 0.3, meteor: 1, holybeam: 1, attack: 1.5 }, steal: ['megalixir'], ap: 0 }],
   ['god3', '歐瑟・安息安魂曲', 'Orsay, Requiem of Rest', 70, 'requiem', ['#ffffff', '#ff2060'], { boss: true, hp: 4.5, size: 2.2, skills: { goner: 0.5, ultima: 0.5, heartless: 0.3, meteor: 1, laugh: 0.6, attack: 2 }, steal: ['megalixir'], ap: 0 }],
 ];
+// elites: bounty marks, episode guardians and the beasts of the abyss — renamed, recoloured and much tougher versions
+// of the creatures above: [id, base, zh, en, level, art (null = the base's), colours, options]
+const ELITE = [
+  ['b_ratking', 'minerat', '灰鬚鼠王', 'Greybeard Rat King', 14, null, ['#6a6a7a', '#c8e8ff'], { hp: 6, size: 1.6 }],
+  ['b_cragqueen', 'cragbat', '岩窟女王', 'Crag Queen', 17, null, ['#4a3a5a', '#ff6a8a'], { hp: 6, size: 1.6 }],
+  ['b_rivermaw', 'riverfrog', '濁流之顎', 'Maw of the Current', 19, null, ['#3a6a4a', '#ff8a3a'], { hp: 6, size: 1.7 }],
+  ['b_tunnelworm', 'sandworm', '地底饕客', 'Tunnel Glutton', 21, null, ['#6a5a4a', '#ffd040'], { hp: 6, size: 1.7 }],
+  ['b_mourner', 'wraith', '啜泣的鐘魂', 'Weeping Bell-Ghost', 24, 'bell', ['#3a4a6a', '#a0c8ff'], { hp: 6, size: 1.5 }],
+  ['b_abysseel', 'eel', '深淵電鰻', 'Abyssal Eel', 26, null, ['#2a3a6a', '#80ffff'], { hp: 6, size: 1.7 }],
+  ['b_rooftop', 'thiefking', '屋頂上的影子', 'Shadow on the Roof', 28, null, ['#3a2a2a', '#ffd040'], { hp: 6, size: 1.5 }],
+  ['b_lavahound', 'hound', '熔岩獵犬', 'Lava Hound', 30, null, ['#8a2a1a', '#ffb030'], { hp: 5, size: 1.7, weak: ['ice', 'water'] }],
+  ['b_alpha', 'valleywolf', '白花狼王', 'Alpha of the White Flowers', 35, null, ['#e8e8f0', '#ff8ab0'], { hp: 7, size: 1.8 }],
+  ['b_bonewhale', 'tombghost', '骨鯨', 'Bone Whale', 48, 'bonedragon', ['#d8d0c0', '#80c8ff'], { hp: 6, size: 1.9 }],
+  ['b_dreamblade', 'darkknight', '夢中的劍士', 'Swordsman in the Dream', 50, 'kalan', ['#4a3a5a', '#ff60ff'], { hp: 6, size: 1.5 }],
+  ['b_moltenheart', 'phoenixwyrm', '熔心', 'Molten Heart', 50, 'core', ['#ff6a20', '#ffe060'], { hp: 6, size: 1.7, absorb: ['fire'] }],
+  ['b_cantor', 'spiremage', '無聲的唱詩班長', 'Voiceless Cantor', 52, null, ['#e8e8f0', '#8a3ab8'], { hp: 6, size: 1.6 }],
+  ['b_rimebeast', 'behemoth', '千年冰獸', 'Thousand-Year Rime Beast', 52, null, ['#a0d0f0', '#ffffff'], { hp: 6, size: 1.9, absorb: ['ice'], weak: ['fire'] }],
+  ['b_mirrorme', 'thiefking', '鏡中的自己', 'The Self in the Mirror', 54, 'rogue', ['#8a8aa8', '#c8f0ff'], { hp: 6, size: 1.5 }],
+  ['b_crimsonpup', 'reddragon', '赤之獸的幼崽', 'Whelp of the Crimson Discord', 55, null, ['#e84a2a', '#ffe060'], { hp: 4, size: 1.6 }],
+  ['b_rubblegiant', 'rockgolem', '崩岩巨人', 'Rubble Giant', 57, null, ['#6a5a4a', '#ff8a3a'], { hp: 7, size: 2 }],
+  ['b_bonegeneral', 'icebone', '骸骨將軍', 'Bone General', 59, null, ['#e8e0c8', '#ff3a3a'], { hp: 7, size: 1.8 }],
+  ['b_goldserpent', 'tentaclex', '金色海蛇', 'Golden Sea-Serpent', 61, null, ['#ffd040', '#40c0ff'], { hp: 5, size: 1.9 }],
+  ['b_voideye', 'peeper', '虛空之眼', 'Eye of the Void', 63, null, ['#2a2a4a', '#ff40ff'], { hp: 7, size: 1.8 }],
+  // episode guardians
+  ['e_roadkeeper', 'tombking', '灰路的守路人', 'Keeper of the Ash Road', 50, 'lord', ['#5a5a6a', '#ffd070'], { hp: 7, size: 1.8 }],
+  ['e_gearmk3', 'octa2', '吉爾維克三號機・掌聲', 'Gearwick Mk III "Applause"', 50, 'organ', ['#8a5a2a', '#ffd040'], { hp: 7, size: 1.9, weak: ['bolt'] }],
+  ['e_master', 'barg', '師父的回音', 'Echo of the Master', 50, 'brawler', ['#e8dcc0', '#80e8ff'], { hp: 7, size: 1.6 }],
+  ['e_kasumei', 'flamelord', '被吸乾的霞鳴', 'Kasumei, Drained', 52, 'angel', ['#f0c8d8', '#ff80b0'], { hp: 7, size: 1.9, absorb: [], weak: ['holy'] }],
+  ['e_lion', 'behemoth', '灰色的獅子', 'The Grey Lion', 50, 'beast', ['#8a8070', '#ffd040'], { hp: 7, size: 1.9 }],
+  ['e_beaconbell', 'ferry', '燈塔的沉默之鐘', 'Silent Bell of the Lighthouse', 50, 'bell', ['#8a6a3a', '#80ffff'], { hp: 7, size: 1.9 }],
+  ['e_stormcalf', 'skyray', '風暴之子', 'Child of the Storm', 52, 'ray', ['#4a5a8a', '#ffff80'], { hp: 7, size: 1.9, absorb: ['wind', 'bolt'] }],
+  ['e_overseer', 'proto', '熔晶所總管的機甲', 'The Overseer\'s Engine', 52, 'mech', ['#5a5a6a', '#ff4040'], { hp: 7, size: 1.8, weak: ['bolt', 'water'] }],
+  ['e_pagebeast', 'magicpot', '吞書的墨獸', 'The Ink Beast That Ate the Books', 52, 'urn', ['#2a2a3a', '#c0f0ff'], { hp: 7, size: 1.7 }],
+  ['e_chimera', 'chimera', '紙頁合成獸', 'Chimera of Pages', 52, 'beast', ['#e8e0c8', '#3a2a1a'], { hp: 7, size: 1.9 }],
+  ['e_foxgod', 'valleywolf', '九尾雪狐', 'Nine-Tailed Snow Fox', 50, 'wolf', ['#f4f4fc', '#a0d0ff'], { hp: 7, size: 1.8, absorb: ['ice'], weak: ['fire'] }],
+  ['e_firstgolem', 'gateguard', '最初的守護者', 'The First Guardian', 52, 'golem', ['#9a8a78', '#40ff90'], { hp: 8, size: 2 }],
+  ['e_mirrorqueen', 'spiremage', '鏡之女王', 'Queen of Mirrors', 54, 'angel', ['#c8c8e0', '#ffffff'], { hp: 7, size: 1.9 }],
+  // the abyss
+  ['x_warden', 'spireknight', '灰潮的守門人', 'Warden of the Ashtide', 68, 'statue', ['#4a4a5a', '#c8c8d8'], { hp: 9, size: 2 }],
+  ['x_mother', 'oldgod', '灰潮之母', 'Mother of the Ashtide', 70, 'requiem', ['#3a3a44', '#d8d8e8'], { hp: 5, size: 2.1 }],
+];
+for (const [id, base, zh, en, lv, art, col, o] of ELITE) {
+  const b = M.find((m) => m[0] === base); if (!b) throw new Error('elite base ' + base);
+  M.push([id, zh, en, lv, art || b[4], col, { ...(b[6] || {}), boss: true, elite: true, ...o }]);
+}
 const lvStat = (L) => ({
   hp: Math.round(26 + L * 14 + L * L * 1.65),
   mp: Math.round(10 + L * 8),
@@ -231,6 +276,7 @@ export const ZONES = {
   phoenix:   { lv: 45, groups: [['phoenixwyrm'], ['bomb', 'phoenixwyrm'], ['ashbird', 'bomb', 'bomb']] },
   cult:      { lv: 46, groups: [['zealot', 'zealot'], ['magicpot', 'zealot'], ['zealot', 'zealot', 'zealot']] },
   icecave:   { lv: 43, groups: [['icebone', 'icebone'], ['snowwolf', 'icebone'], ['icebone', 'slimeice']] },
+  abyss:     { lv: 62, groups: [['spirebeast', 'spireknight'], ['spiremage', 'spiremage', 'spireknight'], ['spiremech', 'darkknight'], ['spirebeast', 'spirebeast'], ['darkknight', 'darkknight', 'spiremage']] },
   spire:     { lv: 58, groups: [['spirebeast'], ['spiremage', 'spireknight'], ['spiremech', 'spiremage'], ['spireknight', 'spireknight'], ['spirebeast', 'spiremage']] },
 };
 // a group for a zone; monsters in the ruin come a little stronger the further the party has got (scale: levels to add)

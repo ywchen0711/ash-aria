@@ -1,6 +1,6 @@
 // node tools/dbg.mjs <boss> <level> — log one fight against a boss
-import { newMember } from '../js/party.js?v=3';
-import { createBattle, tick, perform, enemyAct, foesOf, unitName } from '../js/battle.js?v=3';
+import { newMember } from '../js/party.js?v=4';
+import { createBattle, tick, perform, enemyAct, foesOf, unitName } from '../js/battle.js?v=4';
 import { gearUp } from './sim.mjs';
 const [boss = 'god3', lv = 68] = process.argv.slice(2);
 const party = ['rowan', 'edmund', 'sai', 'selene'].map((id) => gearUp(newMember(id, +lv)));

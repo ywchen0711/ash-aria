@@ -375,6 +375,20 @@ export const GEAR = {
   genjiarmor:A('霞之鎧', 'Kasumi Armour', 'armor', 'heavy', 90, 80, 0, 7),
   minerva:   A('織歌禮服', 'Songweaver Gown', 'armor', 'robe', 88, 85, 0, 8, { res: ['fire', 'ice', 'bolt', 'holy'] }),
   forcearmor:A('共鳴鎧', 'Resonance Mail', 'armor', 'heavy', 99, 70, 0, 8),
+  // the companions' own: earned in their episodes
+  delivered: W('送達', 'Delivered', 'dagger', 245, 0, 9, { fx: 'guard' }),
+  resonancelance: W('共鳴長槍', 'Resonance Lance', 'spear', 248, 0, 9, { el: 'bolt' }),
+  masterfist: W('師父的拳', 'The Master\'s Fist', 'knuckle', 245, 0, 9),
+  kasumeiblade: W('霞鳴', 'Kasumei', 'katana', 252, 0, 9, { el: 'holy' }),
+  beacon:    W('燈塔之光', 'Lighthouse Beacon', 'sword', 246, 0, 9, { el: 'holy', st: { ma: 10 } }),
+  nimbuscloud: W('寧波斯的雲', 'Nimbus Cloud', 'card', 232, 0, 9),
+  greyfeather: W('灰羽', 'Greyfeather', 'ninja', 242, 0, 9),
+  firstquill: W('最初的筆', 'The First Quill', 'brush', 205, 0, 9, { st: { ma: 12 } }),
+  bestiary:  W('百獸之杖', 'Bestiary Staff', 'rod', 195, 0, 9, { st: { ma: 15 } }),
+  foxfire:   W('狐火之槍', 'Foxfire Spear', 'spear', 238, 0, 9, { el: 'fire' }),
+  ownface:   A('自己的臉', 'A Face of One\'s Own', 'armor', 'robe', 96, 96, 0, 9, { res: ['fire', 'ice', 'bolt'] }),
+  ringwhistle: R('團長的哨子', 'The Ringmaster\'s Whistle', 'both', 0, 9),
+  millheart: R('千年之心', 'Heart of a Thousand Years', 'hp', 0, 9),
   // relics
   sprintshoes: R('信使靴', 'Courier Boots', 'sprint', 1200, 1),
   amulet:    R('護身符', 'Amulet', 'guardpoison', 5000, 3),
@@ -413,7 +427,7 @@ const ARM_OK = { heavy: ['heavy', 'light', 'robe'], light: ['light', 'robe'], ro
 export function canEquip(id, k) {
   const it = GEAR[k], ch = CHARS[id]; if (!it || !ch) return false;
   if (it.slot === 'weapon') return ch.wpn.includes(it.kind);
-  if (it.slot === 'relic') return id !== 'uma' || ['ribbon', 'muscle', 'bracer'].includes(k);
+  if (it.slot === 'relic') return id !== 'uma' || ['ribbon', 'muscle', 'bracer', 'millheart'].includes(k);
   return (ARM_OK[ch.arm] || []).includes(it.kind);
 }
 

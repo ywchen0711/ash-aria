@@ -1,6 +1,6 @@
 // Windows, text and menus in the classic style: black boxes with a white rounded border. Every call returns a promise,
 // so story scripts and battles read top to bottom: `await say('…')`, `const i = await menu([...])`.
-import { EN } from './i18n.js?v=3';
+import { EN } from './i18n.js?v=4';
 
 export const S = 3;                         // canvas pixels per logical pixel (logical screen 256 x 240)
 export const VW = 256, VH = 240;

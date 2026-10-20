@@ -1,4 +1,4 @@
-import { beast, BEASTS } from './beasts.js?v=3';
+import { beast, BEASTS } from './beasts.js?v=4';
 // ASH ARIA — all the graphics, drawn in code: 16px tiles, little 4-direction people, outlined monsters, battle backdrops.
 const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 const cache = new Map();
