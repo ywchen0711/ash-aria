@@ -1,12 +1,12 @@
 // node tools/story.mjs [seed] — plays the whole story without a browser: every chapter in order, on the real maps, with
 // the real scripts. It checks that each place can be reached (on foot, or by airship once there is one), fights the story
 // battles and a fair number of random ones, buys gear in each town, and reports the party's level chapter by chapter.
-import { buildMaps, TILE, WALK, BARRIERS, LANDABLE } from '../js/maps.js?v=2';
-import { decorate, opening, CHAPTERS } from '../js/story.js?v=2';
-import { CHARS, ITEMS, GEAR, TOOLS, SPELLS, canEquip, shopList } from '../js/data.js?v=2';
-import { newMember, healFull, gainXp, gainAp, bagAdd, bagTake, maxhp, maxmp, equip, levelTo, optimum } from '../js/party.js?v=2';
-import { createBattle, tick, perform, enemyAct, foesOf, isAuto, autoAct, rewards, alive } from '../js/battle.js?v=2';
-import { encounter, ZONES, MONSTERS } from '../js/monsters.js?v=2';
+import { buildMaps, TILE, WALK, BARRIERS, LANDABLE } from '../js/maps.js?v=3';
+import { decorate, opening, CHAPTERS } from '../js/story.js?v=3';
+import { CHARS, ITEMS, GEAR, TOOLS, SPELLS, canEquip, shopList } from '../js/data.js?v=3';
+import { newMember, healFull, gainXp, gainAp, bagAdd, bagTake, maxhp, maxmp, equip, levelTo, optimum } from '../js/party.js?v=3';
+import { createBattle, tick, perform, enemyAct, foesOf, isAuto, autoAct, rewards, alive } from '../js/battle.js?v=3';
+import { encounter, ZONES, MONSTERS } from '../js/monsters.js?v=3';
 
 let seed = +(process.argv[2] || 1);
 Math.random = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -151,7 +151,7 @@ async function enter(id) {
   if (m.dungeon) setMap(to || id, ...m.anchor.start); else if (m.entry) setMap(to || id, m.entry[0], m.entry[1]); else setMap(to || id, 12, m.h - 1);
   await runEnter();
 }
-import { worldZone } from '../js/maps.js?v=2';
+import { worldZone } from '../js/maps.js?v=3';
 const zoneAt = (w, x, y) => worldZone(w, x, y);
 // walk through a dungeon's floors to the far room of the given floor, fighting on the way, then set off what waits there
 async function dungeon(base, toFloor) {

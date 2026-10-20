@@ -215,8 +215,11 @@ export function makeDungeon(id, o) {
   const out = {}, floors = o.floors || 2;
   for (let f = 1; f <= floors; f++) {
     const d = makeFloor((o.seed || 7) + f * 131, { w: o.w, h: o.h, lava: o.lava, water: o.water }), key = f === 1 ? id : `${id}_${f}`;
+    // stairs go in a room's top row with solid wall behind them (as close to the middle as possible)
+    const nook = (r) => { const xs = []; for (let x = r.x; x < r.x + r.w; x++) if (d.t[r.y - 1][x] === '#') xs.push(x); xs.sort((a, b) => Math.abs(a - r.cx) - Math.abs(b - r.cx)); return xs.length ? [xs[0], r.y] : [r.cx, r.cy]; };
+    [d.start.cx, d.start.cy] = nook(d.start);
     d.t[d.start.cy][d.start.cx] = '<';
-    if (f < floors) d.t[d.end.cy][d.end.cx] = '>';
+    if (f < floors) { [d.end.cx, d.end.cy] = nook(d.end); d.t[d.end.cy][d.end.cx] = '>'; }
     const chests = [];
     (o.chests && o.chests[f] || []).forEach((c, i) => { const r = d.mid[i % 4], x = r.x + (i % 2 ? r.w - 1 : 0), y = r.y + (i >= 2 ? r.h - 1 : 0); chests.push({ x, y, ...c, id: `${key}_${i}` }); });
     if (f === Math.ceil(floors / 2) || f === floors) { const r = d.mid[f === floors ? 3 : 1]; if (d.t[r.cy][r.cx] === ':') d.t[r.cy][r.cx] = 'K'; }

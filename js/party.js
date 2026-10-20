@@ -1,5 +1,5 @@
 // ASH ARIA — party members: levels, stats, equipment, Astrals and the spells they teach. No DOM.
-import { CHARS, GEAR, SPELLS, ASTRALS, canEquip } from './data.js?v=2';
+import { CHARS, GEAR, SPELLS, ASTRALS, canEquip } from './data.js?v=3';
 
 export const MAX_LV = 70;
 export const expFor = (lv) => (lv <= 1 ? 0 : Math.round(6 * Math.pow(lv - 1, 2.55) + 20 * (lv - 1)));

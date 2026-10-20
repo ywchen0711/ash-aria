@@ -1,6 +1,6 @@
 // node tools/sim.mjs — quick balance check: a fight-only party against each zone and the main bosses
-import { newMember, maxhp, maxmp } from '../js/party.js?v=2';
-import { GEAR, canEquip } from '../js/data.js?v=2';
+import { newMember, maxhp, maxmp } from '../js/party.js?v=3';
+import { GEAR, canEquip } from '../js/data.js?v=3';
 // the best gear a player could have bought or found by this level
 export const tierFor = (lv) => Math.max(1, Math.min(8, 1 + Math.floor(lv / 9)));
 export function gearUp(m) {
@@ -11,8 +11,8 @@ export function gearUp(m) {
   }
   m.hp = maxhp(m); m.mp = maxmp(m); return m;
 }
-import { createBattle, tick, perform, enemyAct, foesOf, isAuto, autoAct } from '../js/battle.js?v=2';
-import { encounter } from '../js/monsters.js?v=2';
+import { createBattle, tick, perform, enemyAct, foesOf, isAuto, autoAct } from '../js/battle.js?v=3';
+import { encounter } from '../js/monsters.js?v=3';
 export function fight(lv, zone, ids, foes, smart = false) {
   const party = ids.map((id) => gearUp(newMember(id, lv)));
   const B = createBattle(party, foes || encounter(zone), { bag: {} });

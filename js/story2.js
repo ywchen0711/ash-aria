@@ -364,5 +364,5 @@ async function skyBattle(A) {
   A.goal('前往天空鐘樓的中心。', 'Make your way to the heart of the Sky Belfry.');
 }
 // ---------------------------------------------------------------- after the bells: the Long Silence (Act III starts in story3.js)
-import { actThree } from './story3.js?v=2';
+import { actThree } from './story3.js?v=3';
 async function fall(A) { return actThree(A); }

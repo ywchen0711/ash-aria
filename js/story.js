@@ -1,9 +1,9 @@
 // ASH ARIA — the story: who stands where, what they say, and what happens. The four acts live in story1.js (起),
 // story2.js (承) and story3.js (轉・合); this file holds the shared kit, the chapter cards, the opening and the ending.
-import { act1 } from './story1.js?v=2';
-import { act2 } from './story2.js?v=2';
-import { act34 } from './story3.js?v=2';
-import { shopList } from './data.js?v=2';
+import { act1 } from './story1.js?v=3';
+import { act2 } from './story2.js?v=3';
+import { act34 } from './story3.js?v=3';
+import { shopList } from './data.js?v=3';
 
 // people who speak but never fight
 export const SPEAKERS = {
