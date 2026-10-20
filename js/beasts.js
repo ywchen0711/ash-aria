@@ -95,11 +95,15 @@ function polyShape(pts, b = 0.03, hs = 1) {
 // ---------------------------------------------------------------- the painter handed to every design
 function painter(c1, c2) {
   const parts = [], ops = [];
+  let hq = null;
   const eyeCol = lum(c2) > 0.45 ? c2 : '#ffe27a';
   const colOf = (m) => m === 'a' ? c1 : m === 'b' ? c2 : m === 'A' ? shift(c1, -0.14) : m === 'L' ? shift(c1, 0.12) : m === 'B' ? shift(c2, -0.16) : m === 'e' ? eyeCol : NAMED[m] || m;
   const add = (shape, m, o = {}) => { parts.push({ shape, col: colOf(m), gloss: o.gloss ?? GLOSSY.has(m), o, z: parts.length }); return P; };
   const P = {
     c1, c2, eyeCol, colOf,
+    // hand-finished look: cast shadows between parts, a cool rim light, surface textures (fur, scale, stone, facet)
+    hq: (o = {}) => { hq = { rim: '#a8d0ff', shadow: true, ...o }; return P; },
+    get HQ() { return hq; },
     // ellipsoid
     e: (x, y, rx, ry, m = 'a', o = {}) => add(ellShape(x, y, rx, ry, o.r || 0, o.h ?? 1), m, o),
     // tapered limb from (x1,y1, radius r1) to (x2,y2, radius r2)
@@ -152,13 +156,51 @@ function render(design, c1, c2, N) {
     let v;
     if (o.glow || src.o.glow) { const H = (o.glow ? pt : src).shape.H || 1; v = 0.5 + 0.55 * clamp(HT[q] / H, 0, 1); }
     else {
-      const d = NX[q] * L[0] + NY[q] * L[1] + NZ[q] * L[2];
+      let nx = NX[q], ny = NY[q], nz = NZ[q];
+      if (o.facet || src.o.facet) { nx = Math.round(nx * 2.2) / 2.2; ny = Math.round(ny * 2.2) / 2.2; const l = Math.hypot(nx, ny, 0.8); nx /= l; ny /= l; nz = 0.8 / l; }
+      const d = nx * L[0] + ny * L[1] + nz * L[2];
       v = 0.16 + 0.9 * Math.max(0, d) + (NX[q] > 0.6 && NY[q] > -0.3 ? 0.1 : 0);
       if (o.dim || src.o.dim) v -= 0.2;
       if (pt.gloss) { const sp = NX[q] * HV[0] + NY[q] * HV[1] + NZ[q] * HV[2]; if (sp > 0.965) v = 1.2; }
     }
     if (!(o.nodither)) v += (BAYER[(j & 3) * 4 + (i & 3)] / 16 - 0.47) * 0.09;
     lvl[q] = v < 0.33 ? 0 : v < 0.53 ? 1 : v < 0.75 ? 2 : v < 0.95 ? 3 : 4;
+  }
+  const HQ = P.HQ, hash = (a, b) => { const t = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return t - Math.floor(t); };
+  if (HQ) {
+    // surface textures: short strokes along the fur, rows of scales, speckled stone
+    const u = 48 / N;
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+      const q = j * N + i; if (own[q] < 0 || flatC[q]) continue;
+      const o = col[q].o, tx = o.tex; if (!tx) continue;
+      if (tx === 'fur') {
+        const a = o.fd ?? Math.PI / 2, dx = Math.cos(a), dy = Math.sin(a), along = (i * dx + j * dy) * u, across = (i * -dy + j * dx) * u;
+        const r = hash(Math.round(across), Math.floor(along / 3)), r2 = hash(Math.round(across) + 17, Math.floor(along / 2) + 5);
+        if (r < 0.26 && lvl[q] > 0) lvl[q]--; else if (r2 < 0.08 && lvl[q] < 4 && lvl[q] > 1) lvl[q]++;
+      } else if (tx === 'scale') {
+        const row = Math.floor(j * u / 2.5), off = row % 2 ? 1.5 : 0;
+        if (Math.floor(j * u) % 3 === 0 && (Math.floor(i * u + off) % 3) === 0 && lvl[q] > 0) lvl[q]--;
+      } else if (tx === 'stone') {
+        const r = hash(i, j); if (r < 0.1 && lvl[q] > 0) lvl[q]--; else if (r > 0.94 && lvl[q] < 4) lvl[q]++;
+      } else if (tx === 'plate') {
+        if (Math.floor(i * u) % 7 === 0 && lvl[q] > 0) lvl[q]--;
+      }
+    }
+    // cast shadows: a part in front darkens what lies just below-right of it
+    if (HQ.shadow) {
+      const sd = Math.max(1, Math.round(N / 30)), copy = lvl.slice();
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+        const q = j * N + i; if (own[q] < 0 || flatC[q]) continue;
+        const me = parts[own[q]]; if (me.o.glow || col[q].o.glow) continue;
+        for (let d = 1; d <= sd + 1; d++) {
+          const ii = i - d, jj = j - d; if (ii < 0 || jj < 0) break;
+          const qq = jj * N + ii, k = own[qq]; if (k < 0 || k === own[q]) continue;
+          const ot = parts[k];
+          if (Z[qq] > Z[q] && !ot.o.soft && !ot.o.glow && (ot.o.g === undefined || ot.o.g !== me.o.g)) { copy[q] = Math.max(0, lvl[q] - 1); break; }
+        }
+      }
+      lvl.set(copy);
+    }
   }
   // contours: a pixel touching a part stacked above it (from another group) goes to the deepest shade
   const out = new Array(n2);
@@ -175,6 +217,11 @@ function render(design, c1, c2, N) {
     const pt = col[q];
     out[q] = flatC[q] || ramp(pt.col)[edge ? 0 : lvl[q]];
     if (edge && flatC[q]) out[q] = ramp(pt.col)[0];
+    // rim light along the lower-right silhouette, as if from the cave's cold light behind
+    if (HQ && HQ.rim && !edge && !flatC[q] && !pt.o.glow) {
+      const open = (ii, jj) => ii >= N || jj >= N || own[jj * N + ii] < 0;
+      if ((open(i + 1, j) || open(i + 1, j + 1)) && NX[q] > -0.1) out[q] = mix(out[q], HQ.rim, 0.42);
+    }
   }
   // outline around the silhouette
   const INK = '#0e0a14';
@@ -773,6 +820,103 @@ D.requiem = (P) => {
   P.e(0.5, 0.26, 0.09, 0.11, 'white').p([[0.43, 0.24], [0.48, 0.22], [0.48, 0.26]], 'ink', { b: 0.01, flat: 1 }).p([[0.52, 0.22], [0.57, 0.24], [0.52, 0.26]], 'ink', { b: 0.01, flat: 1 });
   P.line(0.5, 0.3, 0.5, 0.37, 'b').line(0.46, 0.36, 0.42, 0.42, 'b').line(0.54, 0.36, 0.58, 0.42, 'b');
   P.e(0.5, 0.48, 0.05, 0.05, 'b', { glow: 1, soft: 1 });
+};
+// ---- the Frostvale mines, redrawn in the hand-finished style (P.hq)
+D.minerat = (P) => {
+  P.hq();
+  const pink = '#d08a92', fur = { tex: 'fur', fd: Math.PI * 0.94 };
+  P.k([[0.28, 0.76, 0.034], [0.14, 0.83, 0.028], [0.05, 0.75, 0.022], [0.04, 0.61, 0.016], [0.1, 0.51, 0.011], [0.18, 0.49, 0.007]], pink, { tex: 'scale' });
+  P.c(0.62, 0.72, 0.64, 0.88, 0.03, 0.022, 'A', { dim: 1 }).e(0.66, 0.905, 0.035, 0.016, pink, { dim: 1 });
+  P.e(0.42, 0.84, 0.06, 0.05, 'A', { dim: 1 });
+  P.e(0.73, 0.43, 0.062, 0.075, 'a', { dim: 1, r: 0.3 }).e(0.732, 0.435, 0.035, 0.048, pink, { over: 1, dim: 1, r: 0.3 });
+  P.e(0.3, 0.69, 0.16, 0.16, 'a', { g: 3, ...fur }).e(0.45, 0.65, 0.22, 0.17, 'a', { g: 3, ...fur }).e(0.58, 0.6, 0.14, 0.14, 'a', { g: 3, ...fur });
+  P.e(0.47, 0.77, 0.19, 0.06, 'b', { over: 1, tex: 'fur', fd: Math.PI });
+  for (let i = 0; i < 5; i++) { const y = 0.56 - Math.sin(i / 1.6) * 0.06; P.p([[0.21 + i * 0.075, y], [0.19 + i * 0.075, y - 0.075], [0.265 + i * 0.075, y - 0.01]], 'A', { b: 0.012, g: 3 }); }
+  P.p([[0.33, 0.52], [0.29, 0.3], [0.385, 0.46]], '#8ad8ff', { b: 0.05, glow: 1, soft: 1 }).p([[0.4, 0.49], [0.43, 0.2], [0.485, 0.47]], '#8ad8ff', { b: 0.05, glow: 1, soft: 1 }).p([[0.49, 0.48], [0.575, 0.3], [0.555, 0.5]], '#8ad8ff', { b: 0.05, glow: 1, soft: 1 });
+  P.line(0.432, 0.29, 0.445, 0.42, 'white').line(0.305, 0.34, 0.325, 0.44, 'white');
+  P.e(0.3, 0.8, 0.1, 0.09, 'a', fur).c(0.3, 0.86, 0.36, 0.915, 0.03, 0.02, 'a').e(0.37, 0.93, 0.07, 0.02, pink);
+  P.e(0.71, 0.58, 0.13, 0.11, 'a', { r: 0.35, g: 4, ...fur }).c(0.75, 0.61, 0.93, 0.68, 0.085, 0.03, 'a', { g: 4, ...fur });
+  P.e(0.78, 0.665, 0.08, 0.032, 'L', { over: 1 }).e(0.935, 0.68, 0.022, 0.02, pink, { gloss: 1 });
+  P.e(0.64, 0.45, 0.075, 0.085, 'a', { r: -0.2 }).e(0.645, 0.455, 0.045, 0.055, pink, { over: 1, r: -0.2 });
+  P.c(0.66, 0.68, 0.72, 0.88, 0.04, 0.025, 'a', fur).e(0.745, 0.91, 0.045, 0.02, pink);
+  P.teeth(0.72, 0.935, 0.79, 0.935, 3, 'claw');
+  P.eye(0.79, 0.57, 0.035, 'glow', '#ff4a3a');
+  P.dot(0.875, 0.715, '#f0e0a0').dot(0.895, 0.715, '#f0e0a0');
+  P.line(0.89, 0.64, 0.99, 0.6, 'claw').line(0.89, 0.66, 0.99, 0.67, 'claw').line(0.88, 0.665, 0.97, 0.725, 'claw');
+};
+D.frostbat = (P) => {
+  P.hq();
+  P.sym((s, X) => {
+    const dim = s < 0 ? 1 : 0, sh = [X(0.12), 0.44], el = [X(0.26), 0.27], tips = [[X(0.4), 0.09], [X(0.47), 0.28], [X(0.46), 0.48]];
+    P.p([[X(0.1), 0.5], sh, el, tips[0], [X(0.41), 0.22], tips[1], [X(0.43), 0.39], tips[2], [X(0.38), 0.5], [X(0.33), 0.61], [X(0.27), 0.54], [X(0.2), 0.64], [X(0.13), 0.57]], '#9cc0ec', { b: 0.02, dim });
+    P.k([[...sh, 0.022], [...el, 0.018]], 'A', { dim }); for (const t of tips) P.k([[...el, 0.015], [...t, 0.005]], 'A', { dim });
+    P.p([[el[0], el[1] - 0.01], [X(0.24), 0.18], [X(0.29), 0.26]], 'claw', { b: 0.008 });
+    for (const [dx, y] of [[0.33, 0.61], [0.2, 0.64], [0.38, 0.5]]) P.p([[X(dx - 0.012), y - 0.01], [X(dx + 0.012), y - 0.01], [X(dx), y + 0.07]], 'ice', { b: 0.008, facet: 1 });
+    P.p([[X(0.025), 0.33], [X(0.1), 0.1], [X(0.115), 0.34]], 'a', { b: 0.02 }).p([[X(0.045), 0.31], [X(0.095), 0.16], [X(0.1), 0.31]], '#e8a0b8', { over: 1, b: 0.01 });
+    P.c(X(0.05), 0.64, X(0.06), 0.74, 0.018, 0.01, 'A').teeth(X(0.045), 0.745, X(0.075), 0.745, 2, 'claw');
+  });
+  P.e(0.5, 0.53, 0.12, 0.14, 'a', { tex: 'fur' }).e(0.5, 0.575, 0.08, 0.09, 'b', { over: 1, tex: 'fur' });
+  P.e(0.5, 0.36, 0.105, 0.09, 'a', { g: 2, tex: 'fur' });
+  P.p([[0.48, 0.355], [0.5, 0.33], [0.52, 0.355], [0.5, 0.385]], 'A', { b: 0.01 });
+  P.p([[0.44, 0.405], [0.56, 0.405], [0.535, 0.45], [0.465, 0.45]], 'ink', { b: 0.008, flat: 1 }).teeth(0.462, 0.405, 0.538, 0.405, 2, 'white');
+  P.eye(0.455, 0.345, 0.032, 'glow', '#c8f4ff').eye(0.548, 0.345, 0.032, 'glow', '#c8f4ff');
+  for (const [x, y] of [[0.08, 0.72], [0.9, 0.7], [0.18, 0.86], [0.8, 0.88], [0.5, 0.86]]) P.dot(x, y, '#d8f4ff');
+};
+D.iceslime = (P) => {
+  P.hq({ rim: '#f0fbff' });
+  P.e(0.5, 0.925, 0.37, 0.04, '#cfeeff', { under: 1 });
+  P.e(0.5, 0.7, 0.35, 0.235, 'a', { h: 1.3, g: 1, gloss: 1 }).c(0.5, 0.33, 0.5, 0.6, 0.03, 0.2, 'a', { g: 1, h: 1.25, gloss: 1 });
+  P.c(0.23, 0.78, 0.21, 0.885, 0.04, 0.024, 'a', { g: 1 }).c(0.75, 0.8, 0.78, 0.9, 0.034, 0.02, 'a', { g: 1 });
+  P.e(0.5, 0.865, 0.29, 0.055, 'A', { over: 1 });
+  P.p([[0.6, 0.6], [0.69, 0.68], [0.645, 0.83], [0.55, 0.76]], '#e6f7ff', { over: 1, facet: 1 });
+  for (const [x, y, r] of [[0.35, 0.79, 0.024], [0.42, 0.84, 0.014], [0.7, 0.58, 0.016]]) P.e(x, y, r, r, 'L', { over: 1 });
+  P.p([[0.37, 0.47], [0.38, 0.25], [0.46, 0.42]], 'ice', { b: 0.03, facet: 1 }).p([[0.45, 0.4], [0.5, 0.06], [0.56, 0.39]], 'ice', { b: 0.04, facet: 1 }).p([[0.55, 0.43], [0.64, 0.24], [0.64, 0.47]], 'ice', { b: 0.03, facet: 1 }).p([[0.3, 0.55], [0.27, 0.42], [0.36, 0.52]], 'ice', { b: 0.02, facet: 1 });
+  P.e(0.62, 0.71, 0.05, 0.06, '#ffffff', { over: 1, glow: 1 });
+  P.e(0.35, 0.55, 0.035, 0.09, '#ffffff', { over: 1, flat: 1, r: -0.5 }).e(0.31, 0.68, 0.02, 0.025, '#ffffff', { over: 1, flat: 1 });
+  P.eye(0.43, 0.65, 0.055, 'cute').eye(0.6, 0.65, 0.055, 'cute');
+  P.line(0.47, 0.75, 0.5, 0.77, 'ink').line(0.5, 0.77, 0.55, 0.74, 'ink').dot(0.5, 0.775, 'white');
+  for (const [x, y] of [[0.1, 0.6], [0.9, 0.5], [0.16, 0.36], [0.86, 0.78]]) P.dot(x, y, '#ffffff');
+};
+D.frostguard = (P, c1, c2, o = {}) => {
+  P.hq({ rim: '#c8dcff' });
+  const fur = '#d8ccb8', hood = o.captain ? '#5a4a3a' : '#8a6a4a', scarf = '#b83a3a';
+  if (o.captain) P.p([[0.36, 0.38], [0.64, 0.38], [0.76, 0.9], [0.22, 0.92]], scarf, { b: 0.05, dim: 1, tex: 'plate' });
+  if (o.captain) P.p([[0.72, 0.56], [0.9, 0.08], [0.95, 0.1], [0.77, 0.58]], 'metal', { b: 0.02, gloss: 1 }).p([[0.69, 0.53], [0.8, 0.58], [0.79, 0.61], [0.68, 0.56]], 'gold', { b: 0.01, gloss: 1 });
+  else P.c(0.76, 0.06, 0.73, 0.94, 0.011, 0.011, 'wood').p([[0.745, 0.08], [0.765, -0.03], [0.79, 0.08], [0.77, 0.11]], 'metal', { b: 0.012 }).e(0.765, 0.13, 0.022, 0.02, scarf);
+  P.c(0.36, 0.42, 0.3, 0.6, 0.045, 0.04, 'a', { dim: 1 }).e(0.29, 0.62, 0.03, 0.03, 'b', { dim: 1 });
+  P.c(0.285, 0.64, 0.285, 0.68, 0.006, 0.006, 'iron').p([[0.245, 0.68], [0.325, 0.68], [0.335, 0.79], [0.235, 0.79]], 'iron', { b: 0.012 }).e(0.285, 0.735, 0.03, 0.04, '#ffd070', { glow: 1 }).e(0.285, 0.675, 0.042, 0.012, 'iron');
+  P.c(0.44, 0.7, 0.43, 0.88, 0.05, 0.045, 'A').c(0.57, 0.7, 0.58, 0.88, 0.05, 0.045, 'A');
+  P.e(0.43, 0.92, 0.065, 0.035, 'b').e(0.59, 0.92, 0.065, 0.035, 'b').e(0.43, 0.86, 0.06, 0.024, fur, { tex: 'fur' }).e(0.585, 0.86, 0.06, 0.024, fur, { tex: 'fur' });
+  P.p([[0.33, 0.38], [0.67, 0.38], [0.7, 0.8], [0.3, 0.8]], 'a', { b: 0.1, tex: 'plate' });
+  P.e(0.5, 0.8, 0.2, 0.035, fur, { tex: 'fur' }).e(0.5, 0.6, 0.165, 0.025, 'b', { over: 1 }).e(0.5, 0.6, 0.022, 0.022, 'gold', { over: 1, gloss: 1 });
+  P.e(0.35, 0.41, 0.08, 0.055, fur, { tex: 'fur', dim: 1 }).e(0.65, 0.41, 0.085, 0.058, fur, { tex: 'fur' }).e(0.65, 0.4, 0.06, 0.035, 'iron', { gloss: 1 }).e(0.35, 0.4, 0.055, 0.032, 'iron', { gloss: 1, dim: 1 });
+  P.p([[0.42, 0.355], [0.58, 0.355], [0.565, 0.42], [0.435, 0.42]], scarf, { b: 0.015 }).p([[0.55, 0.4], [0.6, 0.4], [0.62, 0.55], [0.57, 0.56]], scarf, { b: 0.012 });
+  P.e(0.5, 0.31, 0.075, 0.08, hood, { tex: 'fur' }).e(0.5, 0.3, 0.055, 0.06, 'skin');
+  P.e(0.5, 0.25, 0.075, 0.06, 'iron', { gloss: 1 }).e(0.5, 0.275, 0.12, 0.022, 'iron', { gloss: 1 }).e(0.5, 0.3, 0.05, 0.016, '#3a2a2a', { over: 1, flat: 1 });
+  if (o.captain) P.k([[0.5, 0.2, 0.012], [0.47, 0.1, 0.03], [0.4, 0.06, 0.02]], scarf, { tex: 'fur' });
+  P.eye(0.478, 0.3, 0.018, 'glow', '#fff4d0').eye(0.525, 0.3, 0.018, 'glow', '#fff4d0').dot(0.5, 0.33, '#c86a5a');
+  P.e(0.62, 0.34, 0.03, 0.02, '#ffffff', { glow: 1, soft: 1, nooutline: 1 });
+  P.c(0.64, 0.42, 0.72, 0.56, 0.05, 0.04, 'a').e(0.745, 0.575, 0.036, 0.036, 'b');
+};
+D.frostcaptain = (P, c1, c2) => D.frostguard(P, c1, c2, { captain: 1 });
+D.ironshell = (P) => {
+  P.hq({ rim: '#b8d8ff' });
+  P.sym((s, X) => { for (let i = 0; i < 3; i++) { const y = 0.66 + i * 0.05, kx = X(0.36 + i * 0.035), ky = y - 0.07 + i * 0.025; P.k([[X(0.22 + i * 0.03), y, 0.032], [kx, ky, 0.027], [X(0.44 + i * 0.02), 0.95, 0.007]], 'A', { dim: i !== 1 ? 1 : 0, tex: 'plate' }); P.e(kx, ky, 0.026, 0.023, 'L', { dim: i !== 1 ? 1 : 0 }); } });
+  P.k([[0.3, 0.6, 0.04], [0.2, 0.52, 0.034], [0.17, 0.42, 0.03]], 'a', { tex: 'plate' }).e(0.17, 0.36, 0.06, 0.05, 'a', { gloss: 1, r: -0.3 });
+  P.c(0.14, 0.34, 0.11, 0.22, 0.028, 0.008, 'a').c(0.2, 0.33, 0.22, 0.23, 0.022, 0.007, 'A');
+  P.k([[0.68, 0.6, 0.06], [0.83, 0.49, 0.055], [0.86, 0.36, 0.05]], 'a', { tex: 'plate' });
+  P.e(0.83, 0.25, 0.17, 0.14, 'a', { gloss: 1, r: 0.35, tex: 'stone' }).e(0.8, 0.28, 0.09, 0.05, 'L', { over: 1, r: 0.35 });
+  P.c(0.74, 0.18, 0.76, 0.03, 0.07, 0.016, 'a', { gloss: 1 }).c(0.92, 0.19, 0.97, 0.05, 0.05, 0.012, 'A');
+  P.teeth(0.785, 0.14, 0.772, 0.06, 4, 'claw').teeth(0.912, 0.16, 0.935, 0.08, 3, 'claw');
+  P.e(0.5, 0.6, 0.31, 0.2, 'a', { h: 1.2, gloss: 1, tex: 'stone' });
+  P.e(0.5, 0.53, 0.27, 0.07, 'L', { over: 1 }).e(0.42, 0.455, 0.13, 0.03, '#e8f4ff', { over: 1 });
+  P.arc(0.5, 0.62, 0.29, 3.3, 6.12, 'A', 0.12).arc(0.5, 0.69, 0.27, 3.4, 6.02, 'A', 0.1);
+  for (let i = 0; i < 7; i++) { const a = 3.45 + i * 0.4; P.dot(0.5 + Math.cos(a) * 0.29, 0.62 + Math.sin(a) * 0.12 - 0.02, 'claw'); }
+  for (const [x, y] of [[0.3, 0.58], [0.34, 0.62], [0.68, 0.57]]) P.e(x, y, 0.022, 0.018, 'stone', { tex: 'stone' });
+  P.k([[0.44, 0.44, 0.015], [0.42, 0.31, 0.011]], 'A').k([[0.56, 0.44, 0.015], [0.58, 0.31, 0.011]], 'A');
+  P.e(0.42, 0.29, 0.037, 0.037, 'b', { glow: 1 }).e(0.58, 0.29, 0.037, 0.037, 'b', { glow: 1 }).dot(0.425, 0.29, 'ink').dot(0.585, 0.29, 'ink');
+  for (const [x, l] of [[0.27, 0.07], [0.35, 0.1], [0.45, 0.06], [0.57, 0.09], [0.66, 0.06], [0.73, 0.08]]) P.p([[x - 0.016, 0.755], [x + 0.016, 0.755], [x, 0.755 + l]], 'ice', { b: 0.01, facet: 1 });
+  P.p([[0.44, 0.7], [0.56, 0.7], [0.535, 0.77], [0.465, 0.77]], 'A', { b: 0.015 }).teeth(0.46, 0.77, 0.54, 0.77, 4, 'claw');
 };
 // old names kept as aliases
 Object.assign(D, { rabbit: D.hare, octopus: D.steamcrab, train: D.bell, clown: D.conductor, godvissek: D.requiem });

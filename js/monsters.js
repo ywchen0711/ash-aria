@@ -56,13 +56,13 @@ for (const [k, v] of Object.entries(LORES)) MSKILLS[k] = { ...v, lore: k };
 // options: hp (multiplier), weak / absorb / immune (elements), skills ({ move: weight }), steal [common, rare], drop, size, boss, undead, ap, gil
 const M = [
   // ---- Frostvale and the north (Lv 1-6)
-  ['frostbat', '冰蝙蝠', 'Frost Bat', 1, 'bat', ['#7aa0d8', '#e0f0ff'], { weak: ['fire'], skills: { bite: 2 }, steal: ['potion'] }],
-  ['minerat', '礦坑鼠', 'Mine Rat', 2, 'rat', ['#8a7a6a', '#e0c8a8'], { skills: { bite: 3 }, steal: ['potion', 'antidote'] }],
+  ['frostbat', '冰蝙蝠', 'Frost Bat', 1, 'frostbat', ['#7aa0d8', '#e0f0ff'], { size: 1.25, weak: ['fire'], skills: { bite: 2 }, steal: ['potion'] }],
+  ['minerat', '礦坑鼠', 'Mine Rat', 2, 'minerat', ['#8a7a6a', '#e0c8a8'], { size: 1.25, skills: { bite: 3 }, steal: ['potion', 'antidote'] }],
   ['snowwolf', '雪狼', 'Snow Wolf', 3, 'wolf', ['#c8d0e0', '#6a7a9a'], { weak: ['fire'], absorb: ['ice'], skills: { bite: 3, frost: 1 }, steal: ['potion'] }],
-  ['slimeice', '冰史萊姆', 'Ice Slime', 3, 'slime', ['#a0d8ff', '#ffffff'], { weak: ['fire'], immune: ['ice'], skills: { frost: 2 }, steal: ['antidote'] }],
-  ['guard', '霜石鎮衛兵', 'Frostvale Guard', 3, 'soldier', ['#8a96a8', '#5a3a2a'], { skills: { slash: 1 }, steal: ['potion', 'buckler'] }],
-  ['ironshell', '鐵殼蟹', 'Ironshell', 5, 'crab', ['#8a9ab0', '#ffd040'], { boss: true, hp: 7, size: 1.6, skills: { slash: 3, splash: 2 }, counter: 'tackle', steal: ['potion', 'mithrilknife'], ap: 3 }],
-  ['captain', '衛兵隊長', 'Guard Captain', 6, 'knight', ['#8a96a8', '#d83a3a'], { boss: true, hp: 5, skills: { slash: 3, heal: 1 }, steal: ['hipotion', 'ironhelm'], ap: 3 }],
+  ['slimeice', '冰史萊姆', 'Ice Slime', 3, 'iceslime', ['#a0d8ff', '#ffffff'], { size: 1.15, weak: ['fire'], immune: ['ice'], skills: { frost: 2 }, steal: ['antidote'] }],
+  ['guard', '霜石鎮衛兵', 'Frostvale Guard', 3, 'frostguard', ['#8a96a8', '#5a3a2a'], { size: 1.3, skills: { slash: 1 }, steal: ['potion', 'buckler'] }],
+  ['ironshell', '鐵殼蟹', 'Ironshell', 5, 'ironshell', ['#8a9ab0', '#ffd040'], { boss: true, hp: 7, size: 1.95, skills: { slash: 3, splash: 2 }, counter: 'tackle', steal: ['potion', 'mithrilknife'], ap: 3 }],
+  ['captain', '衛兵隊長', 'Guard Captain', 6, 'frostcaptain', ['#8a96a8', '#d83a3a'], { size: 1.6, boss: true, hp: 5, skills: { slash: 3, heal: 1 }, steal: ['hipotion', 'ironhelm'], ap: 3 }],
   // ---- the Sularis desert (Lv 4-9)
   ['sandcrawl', '沙蠍', 'Sand Scorpion', 4, 'scorpion', ['#d8b060', '#8a5a2a'], { skills: { slash: 2, fang: 1 }, steal: ['antidote'] }],
   ['cactrot', '針帽仙人掌', 'Spinecap', 6, 'cactus', ['#5aa83a', '#ffd040'], { hp: 0.6, skills: { tackle: 2 }, ap: 3, gil: 3, steal: ['potion', 'gem'] }],
