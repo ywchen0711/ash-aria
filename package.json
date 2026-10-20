@@ -1,0 +1,1 @@
+{ "name": "ash-aria", "private": true, "type": "module", "scripts": { "test": "node tools/test.mjs", "story": "node tools/story.mjs", "sim": "node tools/sim.mjs" } }

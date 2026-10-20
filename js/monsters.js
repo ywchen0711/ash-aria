@@ -1,0 +1,237 @@
+// ASH ARIA — monsters and bosses, and the zones they live in. No DOM.
+// Stats come from the level (see stats()); each monster only says how it differs.
+import { LORES } from './data.js?v=1';
+
+// ---------------------------------------------------------------- monster moves (lores are moves too: Bolo learns them by seeing them)
+const MS = (zh, en, kind, power, target, extra = {}) => ({ name: [zh, en], kind, power, target, ...extra });
+export const MSKILLS = {
+  attack:   MS('攻擊', 'Attack', 'phys', 1, 'one'),
+  bite:     MS('咬', 'Bite', 'phys', 1.35, 'one'),
+  slash:    MS('利爪', 'Rend', 'phys', 1.55, 'one'),
+  tackle:   MS('衝撞', 'Tackle', 'phys', 1.25, 'one'),
+  tailwhip: MS('甩尾', 'Tail Sweep', 'phys', 0.75, 'all'),
+  rush:     MS('狂暴衝鋒', 'Rampage', 'phys', 2.1, 'one'),
+  fang:     MS('毒牙', 'Venom Fang', 'phys', 1.1, 'one', { add: 'poison' }),
+  fireball: MS('火球', 'Fireball', 'dmg', 5, 'one', { el: 'fire' }),
+  flames:   MS('火焰吐息', 'Flame Breath', 'dmg', 7, 'all', { el: 'fire' }),
+  frost:    MS('冰霜', 'Frost', 'dmg', 5, 'one', { el: 'ice' }),
+  blizzard: MS('暴風雪', 'Snowstorm', 'dmg', 6.5, 'all', { el: 'ice' }),
+  spark:    MS('電擊', 'Spark', 'dmg', 5.5, 'one', { el: 'bolt' }),
+  storm:    MS('雷暴', 'Thunderstorm', 'dmg', 7, 'all', { el: 'bolt' }),
+  gust:     MS('狂風', 'Gale', 'dmg', 6, 'all', { el: 'wind' }),
+  tremor:   MS('地鳴', 'Tremor', 'dmg', 7, 'all', { el: 'earth' }),
+  splash:   MS('水砲', 'Water Gun', 'dmg', 5.5, 'one', { el: 'water' }),
+  holybeam: MS('聖光', 'Holy Ray', 'dmg', 9, 'one', { el: 'holy' }),
+  darkwave: MS('暗黑波動', 'Dark Wave', 'dmg', 8, 'all'),
+  spores:   MS('睡眠孢子', 'Sleep Spores', 'status', 0.45, 'all', { add: 'sleep' }),
+  dust:     MS('黑煙', 'Black Smoke', 'status', 0.5, 'all', { add: 'blind' }),
+  hush:     MS('靜寂之歌', 'Hush', 'status', 0.5, 'all', { add: 'silence' }),
+  slowgas:  MS('遲緩氣體', 'Lethargy', 'status', 0.55, 'all', { add: 'slow' }),
+  drainbite:MS('吸血', 'Blood Drain', 'drain', 5, 'one'),
+  heal:     MS('治療', 'Heal', 'healself', 8, 'self'),
+  beam:     MS('魔導光束', 'Magitek Beam', 'dmg', 6, 'one', { el: 'fire' }),
+  icebeam:  MS('冰凍光束', 'Freeze Beam', 'dmg', 6, 'one', { el: 'ice' }),
+  boltbeam: MS('雷光束', 'Bolt Beam', 'dmg', 6, 'one', { el: 'bolt' }),
+  missile:  MS('魔導飛彈', 'Tek Missile', 'phys', 2.4, 'one'),
+  laser:    MS('雷射砲', 'Laser Cannon', 'dmg', 13, 'all'),
+  ink:      MS('噴墨', 'Ink Spray', 'status', 0.7, 'all', { add: 'blind' }),
+  tentacle: MS('觸手', 'Tentacle', 'phys', 1.3, 'one', { add: 'slow' }),
+  wheel:    MS('輾壓', 'Wheel', 'phys', 1.8, 'all'),
+  soulcall: MS('招魂', 'Soul Call', 'kill', 0.18, 'one'),
+  laugh:    MS('大笑', 'Laugh', 'status', 0.5, 'all', { add: 'silence' }),
+  meteor:   MS('星落', 'Meteor', 'dmg', 19, 'all'),
+  ultima:   MS('終焉', 'Ultima', 'dmg', 22, 'all', { pierce: true }),
+  hyperdrive: MS('超光速', 'Hyperdrive', 'dmg', 24, 'one', { pierce: true }),
+  firaga:   MS('煉獄', 'Firaga', 'dmg', 26, 'one', { el: 'fire' }),
+  blizzaga: MS('絕對零度', 'Blizzaga', 'dmg', 26, 'one', { el: 'ice' }),
+  thundaga: MS('天雷', 'Thundaga', 'dmg', 26, 'one', { el: 'bolt' }),
+  havoc:    MS('破滅之翼', 'Havoc Wing', 'phys', 1.6, 'all'),
+  heartless:MS('虛無之光', 'Heartless Angel', 'gravity', 0.6, 'all'),
+  goner:    MS('虛無', 'Goner', 'dmg', 20, 'all', { pierce: true }),
+};
+for (const [k, v] of Object.entries(LORES)) MSKILLS[k] = { ...v, lore: k };
+
+// ---------------------------------------------------------------- the bestiary
+// [id, 中文, English, level, art, [colour, colour2], options]
+// options: hp (multiplier), weak / absorb / immune (elements), skills ({ move: weight }), steal [common, rare], drop, size, boss, undead, ap, gil
+const M = [
+  // ---- Frostvale and the north (Lv 1-6)
+  ['frostbat', '冰蝙蝠', 'Frost Bat', 1, 'bat', ['#7aa0d8', '#e0f0ff'], { weak: ['fire'], skills: { bite: 2 }, steal: ['potion'] }],
+  ['minerat', '礦坑鼠', 'Mine Rat', 2, 'rabbit', ['#8a7a6a', '#e0c8a8'], { skills: { bite: 3 }, steal: ['potion', 'antidote'] }],
+  ['snowwolf', '雪狼', 'Snow Wolf', 3, 'wolf', ['#c8d0e0', '#6a7a9a'], { weak: ['fire'], absorb: ['ice'], skills: { bite: 3, frost: 1 }, steal: ['potion'] }],
+  ['slimeice', '冰史萊姆', 'Ice Slime', 3, 'slime', ['#a0d8ff', '#ffffff'], { weak: ['fire'], immune: ['ice'], skills: { frost: 2 }, steal: ['antidote'] }],
+  ['guard', '霜石鎮衛兵', 'Frostvale Guard', 3, 'soldier', ['#8a96a8', '#5a3a2a'], { skills: { slash: 1 }, steal: ['potion', 'buckler'] }],
+  ['ironshell', '鐵殼蟹', 'Ironshell', 5, 'crab', ['#8a9ab0', '#ffd040'], { boss: true, hp: 7, size: 1.6, skills: { slash: 3, splash: 2 }, counter: 'tackle', steal: ['potion', 'mithrilknife'], ap: 3 }],
+  ['captain', '衛兵隊長', 'Guard Captain', 6, 'knight', ['#8a96a8', '#d83a3a'], { boss: true, hp: 5, skills: { slash: 3, heal: 1 }, steal: ['hipotion', 'ironhelm'], ap: 3 }],
+  // ---- the Sularis desert (Lv 4-9)
+  ['sandcrawl', '沙蠍', 'Sand Scorpion', 4, 'scorpion', ['#d8b060', '#8a5a2a'], { skills: { slash: 2, fang: 1 }, steal: ['antidote'] }],
+  ['cactrot', '跳跳仙人掌', 'Cactrot', 6, 'cactus', ['#5aa83a', '#ffd040'], { hp: 0.6, skills: { tackle: 2 }, ap: 3, gil: 3, steal: ['potion', 'gem'] }],
+  ['dunebird', '沙丘禿鷹', 'Dune Vulture', 6, 'bird', ['#a0703a', '#f0d0a0'], { weak: ['wind'], skills: { slash: 2, gust: 1 }, steal: ['potion'] }],
+  ['sandworm', '沙蟲', 'Sand Worm', 7, 'worm', ['#c8a070', '#8a5a3a'], { hp: 1.5, weak: ['water'], skills: { bite: 2, tremor: 1 }, steal: ['hipotion'] }],
+  ['magitek', '魔導甲', 'Magitek Armour', 7, 'mech', ['#6a7a6a', '#d8d040'], { hp: 1.6, weak: ['bolt'], skills: { beam: 2, missile: 1, attack: 1 }, steal: ['potion', 'ether'] }],
+  // ---- Mt Kolan (Lv 8-12)
+  ['cragbat', '岩蝙蝠', 'Crag Bat', 8, 'bat', ['#6a5a4a', '#c8a080'], { skills: { bite: 2, drainbite: 1 }, steal: ['eyedrop'] }],
+  ['harpy', '鷹身女妖', 'Harpy', 9, 'bird', ['#c86a8a', '#ffe0e0'], { weak: ['bolt'], skills: { slash: 2, gust: 1 }, steal: ['potion', 'plumedhat'] }],
+  ['rockgolem', '岩石魔像', 'Rock Golem', 10, 'golem', ['#8a7a6a', '#40ff90'], { hp: 1.8, weak: ['water'], skills: { tackle: 2, tremor: 1 }, steal: ['hipotion'] }],
+  ['monkimp', '山魈', 'Mountain Imp', 9, 'imp', ['#8a5a3a', '#f0c060'], { skills: { slash: 2, goblinpunch: 1 }, steal: ['echo'] }],
+  ['barg', '巴爾格', 'Barg', 12, 'brawler', ['#c8783a', '#3a2a1a'], { boss: true, hp: 7, size: 1.3, skills: { rush: 2, gust: 2, tailwhip: 1 }, steal: ['hipotion', 'mithrilclaw'], ap: 5 }],
+  // ---- Thunder River, the Dawnline hideout (Lv 10-14)
+  ['riverfrog', '河蛙', 'River Frog', 10, 'frog', ['#4aa060', '#f0e070'], { weak: ['ice'], absorb: ['water'], skills: { splash: 2, tackle: 1 }, steal: ['echo'] }],
+  ['pterodon', '翼龍', 'Pterodon', 12, 'bird', ['#a06a4a', '#ffd040'], { weak: ['wind'], skills: { flames: 1, slash: 2 }, steal: ['potion'] }],
+  ['nautilus', '鸚鵡螺', 'Nautilus', 11, 'shell', ['#d8a070', '#8a4a2a'], { weak: ['bolt'], skills: { splash: 2, aquabreath: 0.4 }, steal: ['hipotion'] }],
+  ['octa', '章魚大王歐克塔', 'Octa the Great', 13, 'octopus', ['#c86ab0', '#ffe0f0'], { boss: true, hp: 7, size: 1.7, weak: ['fire', 'bolt'], skills: { tentacle: 3, ink: 2 }, steal: ['hipotion', 'ether'], ap: 6 }],
+  // ---- Southwind and the tunnels (Lv 11-15)
+  ['trooper', '帝國步兵', 'Imperial Trooper', 11, 'soldier', ['#7a5a3a', '#a8a8a8'], { skills: { slash: 2, fireball: 1 }, steal: ['potion', 'ironarmor'] }],
+  ['commander', '帝國隊長', 'Imperial Commander', 14, 'knight', ['#5a3a6a', '#ffd040'], { hp: 1.5, skills: { slash: 2, heal: 1 }, steal: ['hipotion', 'ironhelm'] }],
+  ['hound', '軍犬', 'War Hound', 12, 'wolf', ['#5a4a3a', '#d83a3a'], { skills: { bite: 3 }, steal: ['potion'] }],
+  ['tunneldrill', '隧道鑽機', 'Tunnel Drill', 15, 'mech', ['#8a6a3a', '#ff6a2a'], { boss: true, hp: 7, size: 1.6, weak: ['bolt', 'water'], skills: { missile: 2, wheel: 2, beam: 1 }, steal: ['hipotion', 'drill'], ap: 7 }],
+  // ---- the camp, Kasumi, the ferry, the Wildlands (Lv 12-18)
+  ['ghostsoldier', '亡靈兵', 'Ghost Soldier', 14, 'ghost', ['#8a9ab0', '#e0f0ff'], { undead: true, weak: ['fire', 'holy'], skills: { slash: 2, soulcall: 0.3 }, steal: ['phoenix'] }],
+  ['wraith', '怨靈', 'Wraith', 15, 'ghost', ['#5a6a8a', '#a0ffd0'], { undead: true, weak: ['fire', 'holy'], skills: { drainbite: 2, hush: 1 }, steal: ['echo'] }],
+  ['bonedog', '骸骨犬', 'Bone Hound', 15, 'skeleton', ['#e8e0d0', '#ff5a3a'], { undead: true, weak: ['fire', 'holy'], skills: { bite: 2, condemn: 0.3 }, steal: ['phoenix'] }],
+  ['ferry', '冥河渡船', 'Ferry of the Departed', 18, 'train', ['#3a4a5a', '#a0ffd0'], { boss: true, hp: 8, size: 2, undead: true, weak: ['fire', 'holy'], skills: { wheel: 3, soulcall: 1, darkwave: 1 }, steal: ['phoenix', 'hipotion'], ap: 8 }],
+  ['wildboar', '荒原野豬', 'Wild Boar', 14, 'beast', ['#8a5a3a', '#f0e0c0'], { skills: { tackle: 2, rush: 1 }, steal: ['potion'] }],
+  ['leafer', '跳葉兔', 'Leafer', 13, 'rabbit', ['#5aa83a', '#f0f0a0'], { skills: { tackle: 2 }, steal: ['potion'] }],
+  ['vulture', '荒原禿鷹', 'Wild Vulture', 15, 'bird', ['#6a4a3a', '#d8b080'], { weak: ['wind'], skills: { slash: 2, gust: 1 }, steal: ['eyedrop'] }],
+  ['stray', '流浪貓妖', 'Stray Cat', 14, 'cat', ['#f0a040', '#ffffff'], { skills: { slash: 3 }, steal: ['potion', 'gem'] }],
+  ['rhinox', '犀牛魔', 'Rhinox', 17, 'beast', ['#7a7a8a', '#d8d8e0'], { hp: 1.5, skills: { rush: 2, tremor: 1 }, steal: ['hipotion'] }],
+  // ---- the Serpent Trench (Lv 15-19)
+  ['seadevil', '海魔', 'Sea Devil', 16, 'fish', ['#3a6ab8', '#c0f0ff'], { weak: ['bolt'], absorb: ['water'], skills: { splash: 2, bite: 1 }, steal: ['hipotion'] }],
+  ['anemone', '海葵', 'Anemone', 16, 'plant', ['#ff6aa0', '#ffe0f0'], { weak: ['fire'], skills: { spores: 1, fang: 2 }, steal: ['echo'] }],
+  ['eel', '電鰻', 'Volt Eel', 17, 'snake', ['#3a8aa8', '#ffff60'], { absorb: ['bolt'], skills: { spark: 2, storm: 1 }, steal: ['ether'] }],
+  // ---- the cliffs of Frostvale (Lv 16-20)
+  ['heavytrooper', '重裝兵', 'Heavy Trooper', 18, 'soldier', ['#4a4a5a', '#d83a3a'], { hp: 1.3, skills: { slash: 2, missile: 1 }, steal: ['hipotion', 'mithrilmail'] }],
+  ['magitek2', '魔導甲 改', 'Magitek Mk II', 19, 'mech', ['#5a6a8a', '#40e0ff'], { hp: 1.6, weak: ['bolt'], skills: { icebeam: 2, boltbeam: 2, missile: 1 }, steal: ['ether'] }],
+  ['kross', '克洛斯隊長', 'Captain Kross', 20, 'knight', ['#3a2a4a', '#ffd040'], { boss: true, hp: 9, size: 1.3, skills: { slash: 3, fireball: 2, heal: 1 }, steal: ['hipotion', 'regal'], ap: 10 }],
+  // ---- Rainhold (Lv 18-22)
+  ['thief', '雨城盜賊', 'Rainhold Thief', 18, 'rogue', ['#5a4a6a', '#a0a0a0'], { skills: { slash: 2 }, steals: true, steal: ['hipotion', 'mithrilknife'] }],
+  ['gutterrat', '溝鼠', 'Gutter Rat', 18, 'rabbit', ['#5a5a5a', '#c8a8a8'], { skills: { fang: 2 }, steal: ['antidote'] }],
+  ['rainslime', '雨史萊姆', 'Rain Slime', 19, 'slime', ['#5a8ab8', '#c0e0ff'], { absorb: ['water'], weak: ['bolt'], skills: { splash: 2 }, steal: ['ether'] }],
+  ['gargoyle', '石像鬼', 'Gargoyle', 21, 'demon', ['#6a6a7a', '#ffd040'], { hp: 1.3, skills: { slash: 2, stonegaze: 0.4 }, steal: ['hipotion'] }],
+  ['thiefking', '雨城盜賊團長', 'Thief Lord', 22, 'rogue', ['#2a2a3a', '#ff4040'], { boss: true, hp: 8, skills: { slash: 3, dust: 1, fireball: 1 }, steal: ['ether', 'airlancet'], ap: 10 }],
+  // ---- the opera rafters (Lv 20-23)
+  ['rafterrat', '屋頂老鼠', 'Rafter Rat', 20, 'rabbit', ['#8a6a5a', '#f0d0c0'], { skills: { bite: 2 }, steal: ['potion'] }],
+  ['octa2', '歐克塔（歌劇院）', 'Octa (Opera)', 23, 'octopus', ['#c86ab0', '#ffe0f0'], { boss: true, hp: 8, size: 1.7, weak: ['fire'], skills: { tentacle: 3, ink: 2, splash: 1 }, steal: ['ether', 'hipotion'], ap: 10 }],
+  // ---- the Empire (Lv 21-28)
+  ['sentry', '帝都哨兵', 'Vexhold Sentry', 22, 'soldier', ['#3a3a4a', '#ffd040'], { skills: { slash: 2, fireball: 1 }, steal: ['hipotion', 'ironhelm'] }],
+  ['flyer', '機械飛鳥', 'Sky Drone', 23, 'drone', ['#8a8a9a', '#ff4040'], { weak: ['bolt'], skills: { laser: 0.3, beam: 2 }, steal: ['ether'] }],
+  ['chimera', '合成獸', 'Chimera', 25, 'beast', ['#8a3a5a', '#ffd040'], { hp: 1.4, skills: { flames: 1, bite: 2, blizzard: 1 }, steal: ['hipotion'] }],
+  ['labmutant', '實驗體', 'Lab Specimen', 24, 'slime', ['#a040c0', '#40ff90'], { skills: { fang: 2, slowgas: 1 }, steal: ['remedy'] }],
+  ['proto', '原型魔導兵', 'Prototype', 26, 'mech', ['#c0c0d0', '#c040ff'], { hp: 1.6, weak: ['bolt'], skills: { laser: 1, missile: 2 }, steal: ['ether', 'mithrilshield'] }],
+  ['no128', '實驗體 No.128', 'Specimen No. 128', 27, 'demon', ['#5a3a7a', '#40ff90'], { boss: true, hp: 9, size: 1.7, skills: { bite: 2, fang: 1, fireball: 1, darkwave: 1 }, steal: ['ether', 'rune'], ap: 12 }],
+  ['gateguard', '守門巨像', 'Gate Colossus', 28, 'golem', ['#c8c8e0', '#40c0ff'], { boss: true, hp: 10, size: 1.9, skills: { tackle: 2, laser: 1, mightyguard: 0.6 }, steal: ['ether', 'goldshield'], ap: 14 }],
+  // ---- Samar and the Astral Valley (Lv 26-33)
+  ['firewisp', '火焰精', 'Fire Wisp', 27, 'wisp', ['#ff8030', '#ffe060'], { absorb: ['fire'], weak: ['ice', 'water'], skills: { fireball: 2, flames: 1 }, steal: ['ether'] }],
+  ['flamelord', '火焰之主', 'Flame Lord', 30, 'wisp', ['#ff4020', '#ffd040'], { boss: true, hp: 10, size: 1.8, absorb: ['fire'], weak: ['ice', 'water'], skills: { flames: 2, fireball: 2, exploder: 0.2 }, steal: ['ether', 'flametongue'], ap: 15 }],
+  ['dryad', '樹精', 'Dryad', 28, 'plant', ['#3a8a3a', '#ffa0d0'], { weak: ['fire'], skills: { spores: 1, whitewind: 0.2, fang: 2 }, steal: ['remedy'] }],
+  ['valleywolf', '谷狼', 'Valley Wolf', 29, 'wolf', ['#6a7a5a', '#ffd040'], { skills: { bite: 3, gust: 1 }, steal: ['hipotion'] }],
+  ['wyvern', '飛龍', 'Wyvern', 31, 'dragon', ['#5a8a5a', '#f0d070'], { hp: 1.4, weak: ['ice'], skills: { flames: 1, slash: 2 }, steal: ['hipotion'] }],
+  ['vissek1', '維瑟克', 'Vissek', 33, 'clown', ['#e0e0f0', '#c040ff'], { boss: true, hp: 7, size: 1.3, skills: { fireball: 2, frost: 2, spark: 2, laugh: 1 }, steal: ['ether', 'goldhairpin'], ap: 18 }],
+  // ---- the Floating Isle (Lv 31-38)
+  ['skyray', '天空鰩', 'Sky Ray', 32, 'fish', ['#8ab0e0', '#ffffff'], { skills: { gust: 2, storm: 1 }, steal: ['ether'] }],
+  ['behemoth', '貝西摩斯', 'Behemoth', 36, 'beast', ['#5a3a6a', '#ffd040'], { hp: 2, skills: { rush: 2, meteor: 0.2, bite: 2 }, steal: ['xpotion', 'hipotion'] }],
+  ['naga', '那伽', 'Naga', 34, 'snake', ['#3a8a6a', '#ffd040'], { skills: { spark: 2, quasar: 0.15 }, steal: ['ether'] }],
+  ['apparatus', '浮島機兵', 'Isle Sentinel', 35, 'mech', ['#c8b060', '#40ffff'], { hp: 1.5, weak: ['bolt'], skills: { laser: 1, missile: 2, bigguard: 0.2 }, steal: ['turbo'] }],
+  ['skyguard', '天空守護者', 'Sky Warden', 36, 'dragon', ['#c8c8f0', '#4060ff'], { boss: true, hp: 10, size: 1.9, skills: { havoc: 1, storm: 2, slash: 2 }, steal: ['turbo', 'thunderblade'], ap: 20 }],
+  ['starcore', '星核巨獸', 'Star Core', 38, 'core', ['#ffd040', '#ff4040'], { boss: true, hp: 10, size: 2, skills: { meteor: 0.3, laser: 2, attack: 1 }, steal: ['turbo', 'aegis'], ap: 24 }],
+  ['vissek2', '維瑟克', 'Vissek', 40, 'clown', ['#e0e0f0', '#c040ff'], { boss: true, hp: 40, size: 1.3, skills: { firaga: 2, blizzaga: 2, thundaga: 2, laugh: 1 }, steal: ['xpotion'], ap: 0, unwinnable: true }],
+  // ---- the world of ruin: the Solitary Isle and the south (Lv 33-42)
+  ['crawler', '廢墟爬蟲', 'Ruin Crawler', 34, 'scorpion', ['#5a4a3a', '#ff6040'], { skills: { slash: 2, fang: 1 }, steal: ['hipotion'] }],
+  ['peeper', '偷窺眼', 'Peeper', 35, 'eye', ['#a080c0', '#ff4040'], { skills: { stonegaze: 1, darkwave: 1 }, steal: ['remedy'] }],
+  ['ashbird', '灰燼鳥', 'Ash Bird', 36, 'bird', ['#5a5a5a', '#ff8030'], { absorb: ['fire'], skills: { flames: 1, slash: 2 }, steal: ['ether'] }],
+  ['dunefiend', '沙魔', 'Dune Fiend', 37, 'worm', ['#a07a4a', '#ff4040'], { hp: 1.6, weak: ['water'], skills: { tremor: 2, bite: 2 }, steal: ['xpotion'] }],
+  ['bomb', '炸彈怪', 'Bomb', 36, 'bomb', ['#ff6020', '#ffe060'], { absorb: ['fire'], weak: ['ice'], skills: { fireball: 2, exploder: 0.5 }, steal: ['firescroll'] }],
+  // ---- recruiting quests: the sunken castle, Hopehaven, the tomb, the dream, the phoenix cave, the tower (Lv 38-50)
+  ['tentaclex', '觸手怪', 'Tentacle', 36, 'octopus', ['#6a3a5a', '#ff80c0'], { boss: true, hp: 5, size: 1.8, skills: { tentacle: 3, ink: 1, drainbite: 1 }, steal: ['turbo'], ap: 20 }],
+  ['darkknight', '黑騎士', 'Dark Knight', 40, 'knight', ['#2a2a3a', '#c040ff'], { hp: 1.4, skills: { slash: 3, darkwave: 1 }, steal: ['xpotion', 'diamondshield'] }],
+  ['hopefiend', '希望村的怪物', 'Humbaba', 42, 'demon', ['#7a3a2a', '#ffd040'], { boss: true, hp: 10, size: 1.9, skills: { rush: 2, flames: 1, gust: 1 }, steal: ['turbo', 'diamondvest'], ap: 24 }],
+  ['tombghost', '墓之守', 'Tomb Warden', 41, 'ghost', ['#c8c8a0', '#ffd040'], { undead: true, weak: ['fire', 'holy'], skills: { soulcall: 0.3, drainbite: 2 }, steal: ['phoenix'] }],
+  ['tombking', '金翼號的亡靈', 'Tomb Sentinel', 42, 'lord', ['#c8a040', '#ffffff'], { boss: true, hp: 8, size: 1.7, undead: true, weak: ['holy'], skills: { slash: 2, darkwave: 1, condemn: 0.5 }, steal: ['turbo', 'crystalhelm'], ap: 25 }],
+  ['nightmare', '夢魔', 'Dreamwraith', 45, 'ghost', ['#5a2a6a', '#ff60ff'], { boss: true, hp: 12, size: 1.8, undead: true, weak: ['holy'], skills: { spores: 1, drainbite: 2, darkwave: 2, roulette: 0.3 }, steal: ['turbo', 'aura'], ap: 26 }],
+  ['dreamshade', '夢之影', 'Dream Shade', 43, 'ghost', ['#3a2a5a', '#a080ff'], { undead: true, weak: ['holy'], skills: { hush: 1, darkwave: 1 }, steal: ['remedy'] }],
+  ['phoenixwyrm', '火山龍', 'Lava Wyrm', 45, 'dragon', ['#a02a10', '#ffb030'], { hp: 1.5, absorb: ['fire'], weak: ['ice', 'water'], skills: { flames: 2, slash: 2 }, steal: ['xpotion'] }],
+  ['phoenixguard', '不死鳥的守護者', 'Phoenix Keeper', 46, 'golem', ['#c03a10', '#ffe060'], { boss: true, hp: 12, size: 1.8, absorb: ['fire'], weak: ['ice'], skills: { flames: 2, tremor: 2, attack: 1 }, steal: ['turbo', 'flameshield'], ap: 26 }],
+  ['zealot', '狂信者', 'Zealot', 46, 'mage', ['#c03a3a', '#ffffff'], { skills: { fireball: 1, spark: 1, frost: 1 }, steal: ['ether'] }],
+  ['magicpot', '魔法壺', 'Magic Urn', 44, 'urn', ['#c8a040', '#40ffd0'], { hp: 0.4, skills: { heal: 3, whitewind: 1 }, steal: ['elixir'], ap: 10 }],
+  ['colossus', '鬥技場勇者', 'Colosseum Champion', 48, 'knight', ['#ffd040', '#c03a3a'], { boss: true, hp: 12, skills: { slash: 3, rush: 1 }, steal: ['xpotion'], ap: 26 }],
+  ['sandworm2', '沙蟲（巨）', 'Great Worm', 45, 'worm', ['#d8a060', '#ff4040'], { boss: true, hp: 12, size: 2, weak: ['water'], skills: { tremor: 2, bite: 2 }, steal: ['turbo'], ap: 24 }],
+  ['icebone', '冰洞骸骨', 'Ice Bones', 43, 'skeleton', ['#c0e0ff', '#40a0ff'], { undead: true, weak: ['fire', 'holy'], absorb: ['ice'], skills: { frost: 2, blizzard: 1 }, steal: ['hipotion'] }],
+  // ---- the eight dragons (Lv 55-65)
+  ['reddragon', '紅龍', 'Red Dragon', 56, 'dragon', ['#c82a1a', '#ffd040'], { boss: true, hp: 8, size: 2, absorb: ['fire'], weak: ['ice'], skills: { flames: 3, firaga: 1 }, steal: ['xpotion', 'flametongue'], ap: 40, dragon: true }],
+  ['icedragon', '冰龍', 'Ice Dragon', 56, 'dragon', ['#a0d8ff', '#ffffff'], { boss: true, hp: 8, size: 2, absorb: ['ice'], weak: ['fire'], skills: { blizzard: 3, blizzaga: 1 }, steal: ['xpotion', 'icebrand'], ap: 40, dragon: true }],
+  ['stormdragon', '暴風龍', 'Storm Dragon', 58, 'dragon', ['#a0c8a0', '#ffff80'], { boss: true, hp: 8, size: 2, absorb: ['wind'], skills: { gust: 3, storm: 2 }, steal: ['xpotion', 'tempest'], ap: 40, dragon: true }],
+  ['earthdragon', '大地龍', 'Earth Dragon', 58, 'dragon', ['#8a6a3a', '#40c040'], { boss: true, hp: 8, size: 2, absorb: ['earth'], skills: { tremor: 3, quasar: 0.5 }, steal: ['xpotion', 'goldarmor'], ap: 40, dragon: true }],
+  ['holydragon', '聖龍', 'Holy Dragon', 60, 'dragon', ['#f0f0ff', '#ffd040'], { boss: true, hp: 8, size: 2, absorb: ['holy'], skills: { holybeam: 3, heal: 1 }, steal: ['xpotion', 'holylance'], ap: 40, dragon: true }],
+  ['deaddragon', '骸骨龍', 'Bone Dragon', 60, 'dragon', ['#c8c0b0', '#40ff60'], { boss: true, hp: 8, size: 2, undead: true, weak: ['holy', 'fire'], skills: { condemn: 1, darkwave: 2, drainbite: 1 }, steal: ['xpotion', 'ribbon'], ap: 40, dragon: true }],
+  ['golddragon', '黃金龍', 'Gold Dragon', 62, 'dragon', ['#ffd040', '#ffffff'], { boss: true, hp: 8, size: 2, absorb: ['bolt'], skills: { storm: 2, thundaga: 1, grandtrain: 0.2 }, steal: ['xpotion', 'crystalmail'], ap: 40, dragon: true }],
+  ['skydragon', '天空龍', 'Sky Dragon', 64, 'dragon', ['#4a6ad8', '#ff80ff'], { boss: true, hp: 9, size: 2, skills: { havoc: 2, gust: 2, meteor: 0.4 }, steal: ['xpotion', 'genjiglove'], ap: 40, dragon: true }],
+  // ---- the Spire of Judgement (Lv 55-66)
+  ['spirebeast', '塔之獸', 'Spire Beast', 56, 'beast', ['#3a2a3a', '#ff4040'], { hp: 1.6, skills: { rush: 2, meteor: 0.2, bite: 2 }, steal: ['xpotion'] }],
+  ['spiremage', '塔之魔導士', 'Spire Mage', 57, 'mage', ['#2a1a3a', '#c040ff'], { skills: { firaga: 1, blizzaga: 1, thundaga: 1, grandtrain: 0.1 }, steal: ['turbo'] }],
+  ['spireknight', '塔之騎士', 'Spire Knight', 58, 'knight', ['#5a5a6a', '#ff2020'], { hp: 1.4, skills: { slash: 3, attack: 1 }, steal: ['xpotion', 'crystalshield'] }],
+  ['spiremech', '終焉機兵', 'Doom Engine', 59, 'mech', ['#2a2a2a', '#ff2020'], { hp: 1.6, weak: ['bolt'], skills: { laser: 2, missile: 2 }, steal: ['turbo'] }],
+  ['oldgod', '舊神', 'The Old God', 72, 'core', ['#1a1a2a', '#ffffff'], { boss: true, hp: 20, size: 2, skills: { ultima: 1, meteor: 1, condemn: 1, heal: 0.5 }, steal: ['megalixir', 'paladinshield'], ap: 80 }],
+  ['tower1', '力之神像', 'Statue of Might', 62, 'statue', ['#c0a060', '#ff4040'], { boss: true, hp: 12, size: 1.8, skills: { rush: 2, tremor: 2, meteor: 0.3 }, steal: ['xpotion'], ap: 40 }],
+  ['tower2', '魔之神像', 'Statue of Magic', 62, 'statue', ['#6060c0', '#40ffff'], { boss: true, hp: 11, size: 1.8, skills: { firaga: 1, blizzaga: 1, thundaga: 1, quasar: 0.5 }, steal: ['turbo'], ap: 40 }],
+  ['tower3', '心之神像', 'Statue of Heart', 62, 'statue', ['#e0e0f0', '#ff80c0'], { boss: true, hp: 11, size: 1.8, skills: { holybeam: 2, heal: 1, heartless: 0.3 }, steal: ['elixir'], ap: 40 }],
+  ['god1', '虛無之神（凡人之形）', 'Vissek, Godform I', 66, 'clown', ['#ffffff', '#c040ff'], { boss: true, hp: 7, size: 1.5, skills: { firaga: 1, blizzaga: 1, thundaga: 1, laugh: 1, hyperdrive: 0.5 }, steal: ['megalixir'], ap: 0 }],
+  ['god2', '虛無之神（天使之形）', 'Vissek, Godform II', 68, 'angel', ['#e0d0ff', '#ff4080'], { boss: true, hp: 7, size: 2, skills: { havoc: 1, heartless: 0.3, meteor: 1, holybeam: 1, attack: 1.5 }, steal: ['megalixir'], ap: 0 }],
+  ['god3', '虛無之神', 'Vissek, God of Nothing', 70, 'godvissek', ['#ffffff', '#ff2060'], { boss: true, hp: 5, size: 2.2, skills: { goner: 0.5, ultima: 0.5, heartless: 0.3, meteor: 1, laugh: 0.6, attack: 2 }, steal: ['megalixir'], ap: 0 }],
+];
+const lvStat = (L) => ({
+  hp: Math.round(26 + L * 14 + L * L * 1.65),
+  mp: Math.round(10 + L * 8),
+  atk: Math.round(10 + L * 3.1),
+  mag: Math.round(5 + L * 1.05),
+  def: Math.min(190, Math.round(6 + L * 2.15)),
+  mdef: Math.min(180, Math.round(4 + L * 1.95)),
+  spd: Math.round(22 + L * 0.26),
+  exp: Math.round(Math.pow(L, 1.55) * 2.0 + 6),
+  gil: Math.round(L * 11 + 14),
+  ap: 1 + Math.floor(L / 14),
+});
+export const MONSTERS = {};
+for (const [id, zh, en, lv, art, col, o = {}] of M) {
+  const s = lvStat(lv);
+  MONSTERS[id] = {
+    id, name: [zh, en], lv, art, col, size: o.size || (o.boss ? 1.5 : 1), boss: !!o.boss, undead: !!o.undead,
+    hp: Math.round(s.hp * (o.hp || 1)), mp: s.mp, atk: s.atk, mag: s.mag, def: s.def, mdef: s.mdef, spd: s.spd + (o.boss ? 4 : 0),
+    exp: Math.round(s.exp * (o.boss ? 6 : 1)), gil: Math.round(s.gil * (o.gil || 1) * (o.boss ? 5 : 1)), ap: o.ap ?? s.ap,
+    weak: o.weak || [], absorb: o.absorb || [], immune: o.immune || [], skills: o.skills || { attack: 1 }, counter: o.counter || null,
+    steal: o.steal || [], drop: o.drop || null, unwinnable: !!o.unwinnable, dragon: !!o.dragon, steals: !!o.steals,
+  };
+}
+export const MONSTER_ORDER = M.map((m) => m[0]);
+
+// ---------------------------------------------------------------- where they live: zone → groups (each a list of ids)
+export const ZONES = {
+  north:     { lv: 2, groups: [['frostbat', 'frostbat'], ['snowwolf'], ['slimeice', 'frostbat'], ['minerat', 'minerat', 'frostbat'], ['snowwolf', 'slimeice']] },
+  mine:      { lv: 3, groups: [['minerat', 'minerat'], ['frostbat', 'minerat'], ['slimeice', 'slimeice'], ['guard', 'guard']] },
+  desert:    { lv: 6, groups: [['sandcrawl', 'sandcrawl'], ['dunebird', 'sandcrawl'], ['sandworm'], ['cactrot'], ['dunebird', 'dunebird', 'sandcrawl']] },
+  kolan:     { lv: 9, groups: [['cragbat', 'cragbat', 'cragbat'], ['harpy', 'cragbat'], ['rockgolem'], ['monkimp', 'monkimp'], ['harpy', 'monkimp']] },
+  river:     { lv: 11, groups: [['riverfrog', 'riverfrog'], ['pterodon'], ['nautilus', 'riverfrog'], ['pterodon', 'nautilus']] },
+  southwind: { lv: 12, groups: [['trooper', 'trooper'], ['hound', 'hound', 'trooper'], ['commander', 'trooper'], ['hound', 'hound']] },
+  camp:      { lv: 13, groups: [['trooper', 'trooper', 'hound'], ['commander', 'hound'], ['magitek']] },
+  ferry:     { lv: 15, groups: [['ghostsoldier', 'ghostsoldier'], ['wraith', 'bonedog'], ['wraith', 'wraith', 'ghostsoldier']] },
+  wild:      { lv: 15, groups: [['wildboar'], ['leafer', 'leafer', 'leafer'], ['vulture', 'leafer'], ['stray', 'stray'], ['rhinox'], ['wildboar', 'vulture']] },
+  trench:    { lv: 17, groups: [['seadevil', 'seadevil'], ['anemone', 'seadevil'], ['eel'], ['eel', 'anemone']] },
+  cliffs:    { lv: 18, groups: [['heavytrooper', 'trooper'], ['magitek2'], ['heavytrooper', 'hound', 'hound']] },
+  rain:      { lv: 20, groups: [['thief', 'thief'], ['gutterrat', 'gutterrat', 'rainslime'], ['gargoyle'], ['thief', 'gargoyle'], ['rainslime', 'rainslime']] },
+  rafters:   { lv: 21, groups: [['rafterrat', 'rafterrat', 'rafterrat'], ['rafterrat', 'rafterrat']] },
+  empire:    { lv: 23, groups: [['sentry', 'sentry'], ['flyer', 'flyer'], ['chimera'], ['sentry', 'flyer']] },
+  lab:       { lv: 25, groups: [['labmutant', 'labmutant'], ['proto'], ['chimera', 'labmutant'], ['proto', 'sentry']] },
+  gate:      { lv: 27, groups: [['chimera', 'labmutant'], ['proto', 'flyer'], ['firewisp', 'firewisp']] },
+  samar:     { lv: 28, groups: [['firewisp', 'firewisp'], ['dryad', 'valleywolf'], ['valleywolf', 'valleywolf'], ['dryad', 'dryad']] },
+  valley:    { lv: 31, groups: [['wyvern'], ['valleywolf', 'dryad'], ['wyvern', 'valleywolf'], ['firewisp', 'dryad', 'valleywolf']] },
+  isle:      { lv: 35, groups: [['skyray', 'skyray'], ['naga', 'skyray'], ['apparatus'], ['behemoth'], ['naga', 'apparatus']] },
+  ruinsouth: { lv: 36, groups: [['crawler', 'crawler'], ['peeper', 'crawler'], ['ashbird', 'ashbird'], ['bomb', 'bomb'], ['dunefiend']] },
+  ruin:      { lv: 41, groups: [['darkknight'], ['peeper', 'ashbird'], ['bomb', 'darkknight'], ['dunefiend', 'crawler'], ['magicpot']] },
+  tomb:      { lv: 42, groups: [['tombghost', 'tombghost'], ['tombghost', 'darkknight'], ['magicpot', 'tombghost']] },
+  dream:     { lv: 44, groups: [['dreamshade', 'dreamshade'], ['dreamshade', 'tombghost'], ['wraith', 'dreamshade']] },
+  phoenix:   { lv: 45, groups: [['phoenixwyrm'], ['bomb', 'phoenixwyrm'], ['ashbird', 'bomb', 'bomb']] },
+  cult:      { lv: 46, groups: [['zealot', 'zealot'], ['magicpot', 'zealot'], ['zealot', 'zealot', 'zealot']] },
+  icecave:   { lv: 43, groups: [['icebone', 'icebone'], ['snowwolf', 'icebone'], ['icebone', 'slimeice']] },
+  spire:     { lv: 58, groups: [['spirebeast'], ['spiremage', 'spireknight'], ['spiremech', 'spiremage'], ['spireknight', 'spireknight'], ['spirebeast', 'spiremage']] },
+};
+// a group for a zone; monsters in the ruin come a little stronger the further the party has got (scale: levels to add)
+export function encounter(zone, rng = Math.random) { const Z = ZONES[zone]; if (!Z) return []; return Z.groups[Math.floor(rng() * Z.groups.length)]; }
