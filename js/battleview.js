@@ -1,12 +1,12 @@
 // ASH ARIA — the battle screen: side view (monsters left, party right), the ATB window, every command's menu, the spoils.
 // The rules live in battle.js; this file shows them and asks the player what to do. Time stops while a menu is open ("wait").
-import { T, EN } from './i18n.js?v=4';
-import { CHARS, CMD, SPELLS, ITEMS, GEAR, ASTRALS, BLITZ, IAI, TOOLS, REELS, REEL_ICON, DANCES, LORES, MAGITEK, STATUS } from './data.js?v=4';
-import { MONSTERS } from './monsters.js?v=4';
-import * as BT from './battle.js?v=4';
-import { person, monster, backdrop } from './art.js?v=4';
-import * as UI from './ui.js?v=4';
-import { gainXp, gainAp, bagAdd, hasFx } from './party.js?v=4';
+import { T, EN } from './i18n.js?v=5';
+import { CHARS, CMD, SPELLS, ITEMS, GEAR, ASTRALS, BLITZ, IAI, TOOLS, REELS, REEL_ICON, DANCES, LORES, MAGITEK, STATUS } from './data.js?v=5';
+import { MONSTERS } from './monsters.js?v=5';
+import * as BT from './battle.js?v=5';
+import { person, monster, backdrop } from './art.js?v=5';
+import * as UI from './ui.js?v=5';
+import { gainXp, gainAp, bagAdd, hasFx } from './party.js?v=5';
 const { box, text, menu, S: SC, VW } = UI;
 
 const nm = (u) => BT.unitName(u, EN);

@@ -1,15 +1,15 @@
 // ASH ARIA — the engine: title, chapters, walking the two worlds, towns and dungeons, the airship, talking, menus, shops,
 // inns, saving, battles (battleview.js) and the ending. The story (story.js) drives everything through the script API `A`.
-import { T, EN, setLang } from './i18n.js?v=4';
-import { CHARS, ITEMS, SPELLS, GEAR, ASTRALS, TOOLS, SLOTS, FX, canEquip, shopList, CMD } from './data.js?v=4';
-import { newMember, maxhp, maxmp, atk, defense, mdefense, str, mag, spd, vit, healFull, bagAdd, bagTake, equip, optimum, expFor, alive, hasFx, levelTo } from './party.js?v=4';
-import { tile, person, airship as shipSprite } from './art.js?v=4';
-import { buildMaps, TILE, WALK, LANDABLE, BARRIERS, worldZone, placeOf, PLACES_B, PLACES_R } from './maps.js?v=4';
-import { encounter, MONSTERS } from './monsters.js?v=4';
-import { runBattle } from './battleview.js?v=4';
-import { decorate, SPEAKERS, CHAPTERS, ending as endingLines, opening } from './story.js?v=4';
-import { music, sfx, toggleMute, isMuted, unlock } from './audio.js?v=4';
-import * as UI from './ui.js?v=4';
+import { T, EN, setLang } from './i18n.js?v=5';
+import { CHARS, ITEMS, SPELLS, GEAR, ASTRALS, TOOLS, SLOTS, FX, canEquip, shopList, CMD } from './data.js?v=5';
+import { newMember, maxhp, maxmp, atk, defense, mdefense, str, mag, spd, vit, healFull, bagAdd, bagTake, equip, optimum, expFor, alive, hasFx, levelTo } from './party.js?v=5';
+import { tile, person, airship as shipSprite } from './art.js?v=5';
+import { buildMaps, TILE, WALK, LANDABLE, BARRIERS, worldZone, placeOf, PLACES_B, PLACES_R } from './maps.js?v=5';
+import { encounter, MONSTERS } from './monsters.js?v=5';
+import { runBattle } from './battleview.js?v=5';
+import { decorate, SPEAKERS, CHAPTERS, ending as endingLines, opening } from './story.js?v=5';
+import { music, sfx, toggleMute, isMuted, unlock } from './audio.js?v=5';
+import * as UI from './ui.js?v=5';
 const { say, says, ask, menu, box, text, S: SC, VW, VH } = UI;
 
 const canvas = document.getElementById('game'), g = canvas.getContext('2d');
@@ -27,7 +27,7 @@ function fitScreen() {
   glCanvas.style.display = hdOn() ? 'block' : 'none';
 }
 addEventListener('resize', fitScreen); fitScreen(); try { new ResizeObserver(fitScreen).observe(document.getElementById('wrap')); } catch (e) { /* ignore */ }
-if (!/fx=low/.test(location.search)) import('./hd.js?v=4').then((m) => { try { HDR = m.create(glCanvas); } catch (e) { HDR = null; } fitScreen(); }).catch(() => {});
+if (!/fx=low/.test(location.search)) import('./hd.js?v=5').then((m) => { try { HDR = m.create(glCanvas); } catch (e) { HDR = null; } fitScreen(); }).catch(() => {});
 function setHD(on) { hdPref = on; try { localStorage.setItem('aa.hd', on ? '1' : '0'); } catch (e) { /* ignore */ } fitScreen(); }
 const hdLabel = () => T('畫面：', 'Graphics: ') + (hdPref ? 'HD-2D' : T('經典', 'Classic'));
 
@@ -555,7 +555,7 @@ function fieldSprites(camX, camY) {
   for (let k = followers; k >= 0; k--) { const q = pos(k); if (!q) continue; const [x, y, d] = q; out.push({ x, y: y - 0.01 * k, img: person(CHARS[ids[k] || ids[0] || 'aria'].look, k === 0 ? P.dir : d, P.moving ? P.frame : 0) }); }
   return out;
 }
-import { monster as monsterArt } from './art.js?v=4';
+import { monster as monsterArt } from './art.js?v=5';
 const monsterImg = (md) => monsterArt(md.art, md.col);
 function hdMap() {
   const kind = MAP.world ? 'world' : MAP.town ? 'town' : ['cave', 'tower', 'dark', 'shrine', 'castle'].includes(MAP.theme) ? MAP.theme : 'town';

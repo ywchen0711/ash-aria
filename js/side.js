@@ -1,6 +1,6 @@
 // ASH ARIA — side stories: the Courier Guild's deliveries (each a little story told in two towns) and the bounty boards
 // (named beasts that lie in wait in places the party has already been). Optional, but this is where much of the world lives.
-import { TILE, WALK } from './maps.js?v=4';
+import { TILE, WALK } from './maps.js?v=5';
 
 export const SIDE_SPEAKERS = {
   clerk: ['信使公會', 'Courier Guild'], hunter2: ['賞金榜', 'Bounty Board'], marta: ['礦工瑪塔', 'Marta the Miner'], timo: ['學徒提莫', 'Timo the Apprentice'],

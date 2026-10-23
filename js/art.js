@@ -1,4 +1,4 @@
-import { beast, BEASTS } from './beasts.js?v=4';
+import { beast, BEASTS } from './beasts.js?v=5';
 // ASH ARIA — all the graphics, drawn in code: 16px tiles, little 4-direction people, outlined monsters, battle backdrops.
 const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 const cache = new Map();
@@ -12,7 +12,7 @@ let seed = 1; const rnd = () => { seed = (seed * 16807) % 2147483647; return see
 
 // ---------------------------------------------------------------- tiles (16x16)
 const THEMES = {
-  town:   { floor: '#5aa83a', floor2: '#4e9a32', wall: '#8e8a96', wall2: '#5e5a68', top: '#c05a3a' },
+  town:   { floor: '#7c8c44', floor2: '#6e7e3a', wall: '#8e8a96', wall2: '#5e5a68', top: '#c05a3a' },
   castle: { floor: '#9a9488', floor2: '#8a847a', wall: '#7a7a88', wall2: '#55556a', top: '#a0a0b0' },
   cave:   { floor: '#7a6448', floor2: '#6a563c', wall: '#4a3a2a', wall2: '#2e2418', top: '#6a5440' },
   tower:  { floor: '#8a8070', floor2: '#7a7060', wall: '#6a5a6a', wall2: '#463a46', top: '#8a7a8a' },
@@ -31,7 +31,7 @@ function tileCanvas(id, theme, frame) {
     const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
     seed = id.split('').reduce((s, ch) => s * 31 + ch.charCodeAt(0), 7) % 99991 + 1;
     const speck = (base, dark, n) => { R(0, 0, 16, 16, base); for (let i = 0; i < n; i++) R(Math.floor(rnd() * 16), Math.floor(rnd() * 16), 1, 1, dark); };
-    const grass = () => { speck('#5aa83a', '#4a9030', 14); for (let i = 0; i < 4; i++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 13); R(x, y, 1, 2, '#3e8a2a'); R(x + 1, y + 1, 1, 2, '#3e8a2a'); } };
+    const grass = () => { speck('#7c8c44', '#6a7a38', 14); for (let i = 0; i < 4; i++) { const x = Math.floor(rnd() * 14), y = Math.floor(rnd() * 13); R(x, y, 1, 2, '#5e7a2e'); R(x + 1, y + 1, 1, 2, '#5e7a2e'); } if (rnd() < 0.3) R(Math.floor(rnd() * 15), Math.floor(rnd() * 15), 1, 1, ['#f4f0e0', '#f0d040', '#e8808a'][Math.floor(rnd() * 3)]); if (rnd() < 0.4) R(Math.floor(rnd() * 14), Math.floor(rnd() * 15), 2, 1, '#9a7a4a'); };
     const ground = theme === 'snow' ? () => { speck('#eef2fa', '#c8d4e8', 10); R(3, 9, 3, 1, '#ffffff'); }
       : theme === 'desert' ? () => speck('#e8d090', '#d0b070', 16)
         : theme === 'ruin' ? () => { speck('#8a7a62', '#6a5a48', 18); R(4, 6, 3, 1, '#9a8a6a'); }
@@ -215,7 +215,7 @@ export function person(look, dir, frame) {
     for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
       const i = (y * 16 + x) * 4; if (d[i + 3]) continue;
       const near = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const X = x + dx, Y = y + dy; return X >= 0 && X < 16 && Y >= 0 && Y < 16 && d[(Y * 16 + X) * 4 + 3]; });
-      if (near) { o[i] = 26; o[i + 1] = 20; o[i + 2] = 36; o[i + 3] = 255; }
+      if (near) { o[i] = 46; o[i + 1] = 30; o[i + 2] = 18; o[i + 3] = 255; }
     }
     if (L.ghost || L.glow) for (let i = 3; i < o.length; i += 4) if (o[i]) o[i] = L.ghost ? 150 : 230;
     g.putImageData(new ImageData(o, 16, 16), 0, 0);

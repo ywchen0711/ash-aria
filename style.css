@@ -21,3 +21,10 @@ body { display: flex; flex-direction: column; align-items: center; justify-conte
 }
 #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #ffe0b0; font-size: 20px; text-align: center; background: #0a0818; z-index: 5; }
 #loading small { color: #aaa; font-size: 13px; }
+
+/* the warm wooden look around the screen and on the touch pad */
+html, body { background: #2c2418; }
+#help { color: #c8b08a; }
+#pad button { background: linear-gradient(#fbe8bc, #d8b070); color: #3a2410; border: 3px solid #2e1a0c; box-shadow: inset 0 2px 0 rgba(255,255,255,.5), 0 3px 0 rgba(0,0,0,.35); font-weight: 900; }
+#pad button.on { background: linear-gradient(#ffe88a, #e8b440); }
+.ab .a { background: linear-gradient(#ffa27e, #c23e26); color: #fff; }

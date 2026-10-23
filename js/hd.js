@@ -7,7 +7,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { tile } from './art.js?v=4';
+import { tile } from './art.js?v=5';
 
 const PITCH = 50 * Math.PI / 180, FOV = 30, DIST = 23;
 const LEAN = PITCH * 0.45, STRETCH = 1 / Math.cos(PITCH - LEAN);     // billboards lean back a little and are stretched to look upright
@@ -65,8 +65,8 @@ const TOPS = { snow: ['#f0f4fc', '#d0d8e8', '#ffffff'], desert: ['#d8b880', '#b8
 
 // ---------------------------------------------------------------- look of each kind of place
 const LOOK = {
-  world:  { sky: '#9ec8f0', fogN: 30, fogF: 52, sun: 2.9, sunCol: '#fff2dc', amb: 1.25, sky2: '#bcd8ff', gnd: '#6a7a4a', dark: false, sat: 0.94, mote: '#fff6c0', motes: 70, tint: [1.03, 1.0, 0.95] },
-  town:   { sky: '#a8c8e0', fogN: 28, fogF: 50, sun: 2.8, sunCol: '#ffe8c8', amb: 1.3, sky2: '#cfe0ff', gnd: '#7a6a4a', dark: false, sat: 1.02, mote: '#fff0b0', motes: 90, tint: [1.05, 1.0, 0.93] },
+  world:  { sky: '#a8d0e8', fogN: 30, fogF: 52, sun: 2.9, sunCol: '#fff2dc', amb: 1.35, sky2: '#fff2d8', gnd: '#6a5a34', dark: false, sat: 0.96, mote: '#fff6c0', motes: 70, tint: [1.03, 1.0, 0.95] },
+  town:   { sky: '#b0d0e4', fogN: 28, fogF: 50, sun: 2.8, sunCol: '#ffe8c8', amb: 1.4, sky2: '#fff2d8', gnd: '#6a5a34', dark: false, sat: 1.0, mote: '#fff0b0', motes: 90, tint: [1.05, 1.0, 0.93] },
   castle: { sky: '#3a3440', fogN: 27, fogF: 48, sun: 1.7, sunCol: '#ffe0b0', amb: 1.15, sky2: '#c8c0d8', gnd: '#5a4a3a', dark: false, mote: '#ffe8a0', motes: 60, tint: [1.06, 0.99, 0.92], torches: true },
   cave:   { sky: '#000000', fogN: 22, fogF: 38, sun: 0.35, sunCol: '#8aa0ff', amb: 0.5, sky2: '#4a5a8a', gnd: '#2a1a10', dark: true, mote: '#ffc070', motes: 60, tint: [1.04, 0.98, 0.9], torches: true },
   tower:  { sky: '#000000', fogN: 22, fogF: 38, sun: 0.45, sunCol: '#b0a0ff', amb: 0.6, sky2: '#6a5a9a', gnd: '#2a2030', dark: true, mote: '#e0c0ff', motes: 60, tint: [1.0, 0.97, 1.03], torches: true },
@@ -75,8 +75,8 @@ const LOOK = {
   snow:   { sky: '#b8c8e0', fogN: 22, fogF: 44, sun: 2.2, sunCol: '#e8f0ff', amb: 1.45, sky2: '#e8f0ff', gnd: '#c8d4e8', dark: false, mote: '#ffffff', motes: 200, tint: [0.97, 1.0, 1.07], snow: true },
   desert: { sky: '#f0d0a0', fogN: 28, fogF: 52, sun: 3.0, sunCol: '#fff0c8', amb: 1.3, sky2: '#ffe8c0', gnd: '#c8a060', dark: false, sat: 1.05, mote: '#ffe0a0', motes: 60, tint: [1.08, 1.0, 0.9] },
   empire: { sky: '#3a3a44', fogN: 24, fogF: 44, sun: 1.6, sunCol: '#ffe0c0', amb: 1.1, sky2: '#a8a8c0', gnd: '#3a3a40', dark: false, mote: '#ffb060', motes: 50, tint: [1.0, 0.98, 1.02], torches: true },
-  ruin:   { sky: '#6a2a20', fogN: 22, fogF: 44, sun: 2.0, sunCol: '#ffa070', amb: 1.1, sky2: '#ff9a70', gnd: '#5a3a2a', dark: false, sat: 0.8, mote: '#ff8a50', motes: 110, tint: [1.1, 0.92, 0.85] },
-  ruinworld: { sky: '#8a3a28', fogN: 28, fogF: 50, sun: 2.3, sunCol: '#ffb080', amb: 1.15, sky2: '#ffa080', gnd: '#5a3a2a', dark: false, sat: 0.78, mote: '#ff9a60', motes: 90, tint: [1.12, 0.93, 0.84] },
+  ruin:   { sky: '#8a4a32', fogN: 24, fogF: 46, sun: 2.3, sunCol: '#ffc090', amb: 1.3, sky2: '#ffc8a0', gnd: '#6a4a32', dark: false, sat: 0.92, mote: '#ffa060', motes: 90, tint: [1.06, 0.97, 0.9] },
+  ruinworld: { sky: '#a05a3a', fogN: 30, fogF: 54, sun: 2.6, sunCol: '#ffc898', amb: 1.35, sky2: '#ffd0a8', gnd: '#6a4a32', dark: false, sat: 0.92, mote: '#ffb070', motes: 80, tint: [1.06, 0.98, 0.9] },
   ship:   { sky: '#8ac0f0', fogN: 30, fogF: 60, sun: 3.0, sunCol: '#ffffff', amb: 1.4, sky2: '#d0e8ff', gnd: '#8a6a4a', dark: false, mote: '#ffffff', motes: 60, tint: [1.0, 1.0, 1.03] },
   opera:  { sky: '#1a0a14', fogN: 24, fogF: 44, sun: 1.0, sunCol: '#ffd8a0', amb: 0.9, sky2: '#ffc080', gnd: '#3a1a1a', dark: false, mote: '#ffe0a0', motes: 70, tint: [1.08, 0.97, 0.9], torches: true },
 };
@@ -96,7 +96,7 @@ const DOF = {
     }`,
 };
 const GRADE = {
-  uniforms: { tDiffuse: { value: null }, vig: { value: 0.42 }, sat: { value: 1.12 }, contrast: { value: 1.08 }, dark: { value: 0 }, tint: { value: new THREE.Vector3(1, 1, 1) } },
+  uniforms: { tDiffuse: { value: null }, vig: { value: 0.2 }, sat: { value: 1.0 }, contrast: { value: 1.0 }, dark: { value: 0 }, tint: { value: new THREE.Vector3(1, 1, 1) } },
   vertexShader: DOF.vertexShader,
   fragmentShader: `uniform sampler2D tDiffuse; uniform float vig, sat, contrast, dark; uniform vec3 tint; varying vec2 vUv;
     void main(){
@@ -342,7 +342,7 @@ export function create(canvas) {
     scene.background = new THREE.Color(L.sky); scene.fog = new THREE.Fog(L.sky, L.fogN, L.fogF);
     hemi.color.set(L.sky2); hemi.groundColor.set(L.gnd); hemi.intensity = L.amb;
     sun.color.set(L.sunCol); sun.intensity = L.sun;
-    grade.uniforms.tint.value.set(...L.tint); grade.uniforms.sat.value = L.sat || 1.1;
+    grade.uniforms.tint.value.set(...L.tint); grade.uniforms.sat.value = L.sat || 1.0;
     world = { key: info.key, root, L, groundMat, groundTex, flames, glows, motes, mp, seeds, base: mp.slice(), dark: L.dark };
   }
 
@@ -426,7 +426,7 @@ export function create(canvas) {
     for (let i = list.length; i < pool.length; i++) { pool[i].m.visible = false; pool[i].blob.visible = false; }
     // post effects
     const px = renderer.getPixelRatio() * (canvas.clientWidth / 256 || 3);
-    dofH.uniforms.maxR.value = dofV.uniforms.maxR.value = 2.6 * px;
+    dofH.uniforms.maxR.value = dofV.uniforms.maxR.value = 1.1 * px;
     for (const p of [dofH, dofV]) { p.uniforms.all.value = battleK * 0.7; p.uniforms.focus.value = 0.47; }
     dofH.uniforms.dir.value.set(1 / (canvas.width || 768), 0); dofV.uniforms.dir.value.set(0, 1 / (canvas.height || 720));
     grade.uniforms.dark.value = battleK * 0.35;

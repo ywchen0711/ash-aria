@@ -1,6 +1,6 @@
 // ASH ARIA — monsters and bosses, and the zones they live in. No DOM.
 // Stats come from the level (see stats()); each monster only says how it differs.
-import { LORES } from './data.js?v=4';
+import { LORES } from './data.js?v=5';
 
 // ---------------------------------------------------------------- monster moves (lores are moves too: Bolo learns them by seeing them)
 const MS = (zh, en, kind, power, target, extra = {}) => ({ name: [zh, en], kind, power, target, ...extra });

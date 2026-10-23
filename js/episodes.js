@@ -1,6 +1,6 @@
 // ASH ARIA — Act IV episodes: one story for each companion, in a place of their own (three floors, a moment half way,
 // a guardian at the end and the weapon only they can carry); and the Ashtide Abyss, ten floors down beneath Tidewatch.
-import { spot } from './side.js?v=4';
+import { spot } from './side.js?v=5';
 
 const L = (sp, zh, en) => [sp, zh, en];
 // id, who, town, giver look, giver speaker, title, hint (they are missing), offer, start, mid, before the guardian, guardian, after, reward

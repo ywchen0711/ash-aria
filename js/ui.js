@@ -1,6 +1,6 @@
 // Windows, text and menus in the classic style: black boxes with a white rounded border. Every call returns a promise,
 // so story scripts and battles read top to bottom: `await say('…')`, `const i = await menu([...])`.
-import { EN } from './i18n.js?v=4';
+import { EN } from './i18n.js?v=5';
 
 export const S = 3;                         // canvas pixels per logical pixel (logical screen 256 x 240)
 export const VW = 256, VH = 240;
@@ -12,14 +12,21 @@ export const busy = () => stack.length > 0;
 
 export function box(x, y, w, h) {
   const g = ctx; g.save(); g.scale(S, S);
-  g.fillStyle = 'rgba(0,0,0,0.92)'; g.beginPath(); g.roundRect(x + 0.5, y + 0.5, w - 1, h - 1, 4); g.fill();
-  g.strokeStyle = '#fff'; g.lineWidth = 1.6; g.beginPath(); g.roundRect(x + 2, y + 2, w - 4, h - 4, 3); g.stroke();
+  // a wooden frame: dark edge, warm brown board, a light inner line, a soft drop shadow
+  g.fillStyle = 'rgba(0,0,0,0.35)'; g.beginPath(); g.roundRect(x + 0.5, y + 1.8, w - 1, h - 1, 4); g.fill();
+  const gr = g.createLinearGradient(0, y, 0, y + h); gr.addColorStop(0, 'rgba(112,76,44,0.97)'); gr.addColorStop(1, 'rgba(78,50,27,0.97)');
+  g.fillStyle = gr; g.beginPath(); g.roundRect(x + 0.5, y + 0.5, w - 1, h - 1, 4); g.fill();
+  g.strokeStyle = '#2e1a0c'; g.lineWidth = 1.4; g.beginPath(); g.roundRect(x + 0.5, y + 0.5, w - 1, h - 1, 4); g.stroke();
+  g.strokeStyle = '#c08a50'; g.lineWidth = 0.8; g.beginPath(); g.roundRect(x + 2, y + 2, w - 4, h - 4, 3); g.stroke();
+  g.strokeStyle = 'rgba(255,224,170,0.25)'; g.lineWidth = 0.6; g.beginPath(); g.moveTo(x + 4, y + 3); g.lineTo(x + w - 4, y + 3); g.stroke();
   g.restore();
 }
 export function text(str, x, y, opts = {}) {
   const g = ctx; g.save();
   g.font = `${opts.size || 8 * S}px ${FONT}`; g.textBaseline = 'top'; g.textAlign = opts.align || 'left';
-  g.fillStyle = opts.color || '#fff'; g.fillText(str, x * S, y * S);
+  // bold-looking letters: a dark outline round every glyph
+  g.lineJoin = 'round'; g.lineWidth = Math.max(2, (opts.size || 8 * S) / 6); g.strokeStyle = '#2e1a0c'; g.strokeText(str, x * S, y * S);
+  g.fillStyle = opts.color === '#777' ? '#a8916c' : opts.color || '#fff'; g.fillText(str, x * S, y * S);
   g.restore();
 }
 export function measure(str, size = 8 * S) { ctx.save(); ctx.font = `${size}px ${FONT}`; const w = ctx.measureText(str).width / S; ctx.restore(); return w; }
@@ -42,7 +49,7 @@ export const drawUI = () => { for (const w of stack) w.draw(); };
 export function key(k) { const w = stack[stack.length - 1]; if (w && w.key) w.key(k); }
 const push = (w) => { stack.push(w); return w; };
 const pop = (w) => { const i = stack.indexOf(w); if (i >= 0) stack.splice(i, 1); };
-const cursor = (x, y) => { if (Math.floor(blink * 2.5) % 2 === 0) text('▶', x, y); };
+const cursor = (x, y) => { if (Math.floor(blink * 2.5) % 2 === 0) text('▶', x, y, { color: '#ffe27a' }); };
 
 // ---------------------------------------------------------------- messages
 // say(text): a message window at the bottom; the text types out, then a ▼ waits for a key.
