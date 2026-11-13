@@ -6,10 +6,10 @@ import { newMember, maxhp, maxmp, atk, defense, mdefense, str, mag, spd, vit, he
 import { tile, person, airship as shipSprite } from './art.js?v=5';
 import { buildMaps, TILE, WALK, LANDABLE, BARRIERS, worldZone, placeOf, PLACES_B, PLACES_R } from './maps.js?v=5';
 import { encounter, MONSTERS } from './monsters.js?v=5';
-import { runBattle } from './battleview.js?v=6';
+import { runBattle } from './battleview.js?v=7';
 import { decorate, SPEAKERS, CHAPTERS, ending as endingLines, opening } from './story.js?v=5';
 import { music, sfx, toggleMute, isMuted, unlock } from './audio.js?v=5';
-import * as UI from './ui.js?v=5';
+import * as UI from './ui.js?v=6';
 const { say, says, ask, menu, box, text, S: SC, VW, VH } = UI;
 
 const canvas = document.getElementById('game'), g = canvas.getContext('2d');
@@ -170,7 +170,7 @@ async function shop(kind, tier) {
   for (;;) {
     const i = await ask(T(`${hello[0]}：「歡迎光臨！」`, `${hello[1]}: "Welcome!"`), [T('買', 'Buy'), T('賣', 'Sell'), T('離開', 'Leave')]);
     if (i === 0) {
-      const ii = await menu(list.map((k) => ({ label: nameItem(k) + (kind === 'tools' && (S.tools || []).includes(k) ? T(' (有)', ' (owned)') : ''), right: `${priceOf(k)}` })), { x: 8, y: 8, w: 240, rows: 9, title: `${S.gil} G`, info: (it, sel) => gearInfo(list[sel]) });
+      const ii = await menu(list.map((k) => ({ label: nameItem(k) + (kind === 'tools' && (S.tools || []).includes(k) ? T(' (有)', ' (owned)') : ''), right: `${priceOf(k)}` })), { x: 8, y: 8, w: 240, rows: 8, title: `${S.gil} G`, info: (it, sel) => gearInfo(list[sel]) });
       if (ii < 0) continue;
       const k = list[ii], p = priceOf(k);
       if (kind === 'tools' && (S.tools || []).includes(k)) { await say(T('已經有了。', 'You already have that.')); continue; }
@@ -196,7 +196,7 @@ async function shop(kind, tier) {
 function gearInfo(k) {
   const it = GEAR[k]; if (!it) { const i2 = ITEMS[k] || TOOLS[k]; if (i2) { box(8, 196, 240, 40); text(itemDesc(k), 16, 204, { size: 7 * SC }); } return; }
   box(8, 160, 240, 76); let x = 16;
-  for (const id of S.party) { const can = canEquip(id, k), m = S.members[id]; text(nameOf(id).slice(0, EN ? 6 : 3), x, 168, { color: can ? '#fff' : '#666', size: 7 * SC }); if (can) { const slot = it.slot === 'relic' ? 'relic1' : it.slot, cur = m.eq[slot] && GEAR[m.eq[slot]], d = it.slot === 'weapon' ? (it.power - (cur ? cur.power : 0)) : (it.def || 0) - (cur && cur.def || 0); text(it.slot === 'relic' ? '★' : `${d >= 0 ? '+' : ''}${d}`, x, 180, { color: d > 0 ? '#7fff8a' : '#ccc', size: 7 * SC }); } x += 58; }
+  for (const id of S.party) { const can = canEquip(id, k), m = S.members[id]; text(UI.fit(nameOf(id), 54, 7 * SC), x, 168, { color: can ? '#fff' : '#666', size: 7 * SC }); if (can) { const slot = it.slot === 'relic' ? 'relic1' : it.slot, cur = m.eq[slot] && GEAR[m.eq[slot]], d = it.slot === 'weapon' ? (it.power - (cur ? cur.power : 0)) : (it.def || 0) - (cur && cur.def || 0); text(it.slot === 'relic' ? '★' : `${d >= 0 ? '+' : ''}${d}`, x, 180, { color: d > 0 ? '#7fff8a' : '#ccc', size: 7 * SC }); } x += 58; }
   text(gearLine(k), 16, 198, { size: 7 * SC, color: '#ffe080' }); if (it.fx) text(T(FX[it.fx]), 16, 212, { size: 7 * SC });
 }
 const gearLine = (k) => { const it = GEAR[k]; const p = []; if (it.power) p.push(T(`攻擊 ${it.power}`, `Atk ${it.power}`)); if (it.def) p.push(T(`防 ${it.def}`, `Def ${it.def}`)); if (it.mdef) p.push(T(`魔防 ${it.mdef}`, `M.Def ${it.mdef}`)); if (it.el) p.push(T('屬性', 'Elem') + ':' + it.el); if (it.st) p.push(Object.entries(it.st).map(([s, v]) => `${{ st: T('力', 'Str'), ma: T('魔', 'Mag'), sp: T('速', 'Spd'), vi: T('體', 'Vit') }[s]}+${v}`).join(' ')); return p.join('  '); };
@@ -212,19 +212,21 @@ async function fieldMenu() {
   const opts = [['items', T('道具', 'Items')], ['magic', T('魔法', 'Magic')], ['astral', T('星晶', 'Astrals')], ['equip', T('裝備', 'Equip')], ['status', T('狀態', 'Status')]];
   if (!S.lock && S.roster.length > 1) opts.push(['party', T('隊伍', 'Party')]);
   opts.push(['system', T('系統', 'System')]);
+  let sub = false;   // a sub-menu is open: the goal box would sit under its description window
   const close = UI.panel(() => {
     box(150, 8, 98, 54); text(`${S.gil} G`, 240, 14, { align: 'right' }); text(fmtTime(S.playTime || 0), 240, 28, { align: 'right', size: 7 * SC, color: '#aaa' });
     text(chapterLabel(), 156, 44, { size: 6 * SC, color: '#ffe080' });
-    if (S.goal) { const lines = UI.wrap(T('目標：', 'Goal: ') + T(S.goal), 226); box(8, 178, 240, 18 + lines.length * 12); lines.forEach((l, i) => text(l, 16, 186 + i * 12, { size: 7 * SC })); }
+    if (S.goal && !sub) { const lines = UI.wrap(T('目標：', 'Goal: ') + T(S.goal), 226); box(8, 178, 240, 18 + lines.length * 12); lines.forEach((l, i) => text(l, 16, 186 + i * 12, { size: 7 * SC })); }
     partyStrip(70, 8);
   });
   try {
     for (;;) {
       const i = await menu(opts.map((o) => o[1]), { x: 8, y: 8, w: 60 });
       if (i < 0) return;
-      const k = opts[i][0];
+      const k = opts[i][0]; sub = true;
       if (k === 'items') await itemMenu(); else if (k === 'magic') await magicMenu(); else if (k === 'astral') await astralMenu(); else if (k === 'equip') await equipMenu();
       else if (k === 'status') await statusMenu(); else if (k === 'party') await formation(4); else if (k === 'system') { if (await systemMenu()) return; }
+      sub = false;
     }
   } finally { close(); }
 }
@@ -234,7 +236,7 @@ function partyStrip(x, y) {
   partyM().forEach((m, i) => {
     const yy = y + i * 36; box(x, yy, 78, 34);
     g.drawImage(person(CHARS[m.id].look, 'down', 0), (x + 4) * SC, (yy + 6) * SC, 16 * SC, 16 * SC);
-    text(nameOf(m.id).slice(0, EN ? 7 : 4), x + 24, yy + 5, { size: 7 * SC }); text(`Lv${m.lv}`, x + 72, yy + 5, { size: 6 * SC, align: 'right', color: '#ffe080' });
+    text(UI.fit(nameOf(m.id), 34, 7 * SC), x + 24, yy + 5, { size: 7 * SC }); text(`Lv${m.lv}`, x + 72, yy + 5, { size: 6 * SC, align: 'right', color: '#ffe080' });
     text(`${m.hp}/${maxhp(m)}`, x + 24, yy + 16, { size: 6 * SC, color: m.hp <= 0 ? '#ff6a6a' : '#fff' }); text(`${m.mp}`, x + 72, yy + 24, { size: 6 * SC, align: 'right', color: '#a8c8ff' });
   });
 }
@@ -285,7 +287,7 @@ async function astralMenu() {
     const mi = await pickMember(T('誰要裝備星晶？', 'Who equips an Astral?'), S.party.filter((id) => !CHARS[id].guest && id !== 'uma')); if (mi < 0) return;
     const ids = S.party.filter((id) => !CHARS[id].guest && id !== 'uma'), m = S.members[ids[mi]];
     const list = [null, ...owned];
-    const ai = await menu(list.map((a) => a ? { label: T(ASTRALS[a].name) + (S.astrals[a] && S.astrals[a] !== m.id ? `（${nameOf(S.astrals[a])}）` : ''), right: m.astral === a ? '★' : '' } : { label: T('（卸下）', '(none)') }), { x: 90, y: 8, w: 158, rows: 10, title: nameOf(m.id), info: (it, sel) => astralInfo(list[sel], m) });
+    const ai = await menu(list.map((a) => a ? { label: T(ASTRALS[a].name) + (S.astrals[a] && S.astrals[a] !== m.id ? `（${nameOf(S.astrals[a])}）` : ''), right: m.astral === a ? '★' : '' } : { label: T('（卸下）', '(none)') }), { x: 90, y: 8, w: 158, rows: 8, title: nameOf(m.id), info: (it, sel) => astralInfo(list[sel], m) });
     if (ai < 0) continue;
     const a = list[ai];
     if (m.astral) S.astrals[m.astral] = null;
@@ -299,8 +301,8 @@ function astralInfo(a, m) {
   text(`${T(A2.summon.name)}  MP ${A2.summon.mp}`, 16, 156, { color: '#ffe080', size: 7 * SC });
   Object.entries(A2.teach).forEach(([s, r], i) => { if (!SPELLS[s]) return; const pct = m.spells.includes(s) ? '★' : `${Math.floor(m.learn[s] || 0)}%`; text(`${T(SPELLS[s].name)} ×${r}  ${pct}`, 16 + (i % 2) * 116, 170 + Math.floor(i / 2) * 12, { size: 7 * SC }); });
   const b = Object.entries(A2.bonus).map(([k, v]) => ({ str: T('力', 'Str'), mag: T('魔', 'Mag'), spd: T('速', 'Spd'), vit: T('體', 'Vit'), hp: 'HP', mp: 'MP' })[k] + (k === 'hp' || k === 'mp' ? `+${Math.round(v * 100)}%` : `+${v}`)).join(' ');
-  if (b) text(T('升級加成 ', 'Level bonus ') + b, 16, 210, { size: 7 * SC, color: '#a8ffb0' });
-  text(T(A2.story), 16, 222, { size: 6 * SC, color: '#aaa' });
+  if (b) text(T('升級加成 ', 'Level bonus ') + b, 16, 197, { size: 7 * SC, color: '#a8ffb0' });
+  UI.wrap(T(A2.story), 224 * 8 / 6 - 8).slice(0, 2).forEach((l, i) => text(l, 16, 212 + i * 10, { size: 6 * SC, color: '#aaa' }));
 }
 async function equipMenu() {
   const mi = await pickMember(T('誰的裝備？', 'Whose equipment?'), S.party.filter((id) => id !== 'uma')); if (mi < 0) return;

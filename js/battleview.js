@@ -5,7 +5,7 @@ import { CHARS, CMD, SPELLS, ITEMS, GEAR, ASTRALS, BLITZ, IAI, TOOLS, REELS, REE
 import { MONSTERS } from './monsters.js?v=5';
 import * as BT from './battle.js?v=5';
 import { person, monster, backdrop } from './art.js?v=5';
-import * as UI from './ui.js?v=5';
+import * as UI from './ui.js?v=6';
 import { gainXp, gainAp, bagAdd, hasFx } from './party.js?v=5';
 const { box, text, menu, S: SC, VW } = UI;
 
@@ -78,22 +78,28 @@ function drawBattle(G, B, g, dt) {
   g.restore();
   // the window: enemies on the left, the party's HP and ATB on the right
   box(2, 162, 92, 76);
+  if (B.lowMenu) return drawParty(B, g);   // a command / target list sits on the left box: don't draw names under it
   const names = []; for (const u of B.mons) if (BT.alive(u)) { const k = T(u.mon.name); if (!names.includes(k)) names.push(k); }
   names.slice(0, 5).forEach((n, i) => {
-    text(n.slice(0, EN ? 12 : 6), 10, 170 + i * 13, { size: 7 * SC });
-    const c = B.cursor; if (c && c.side === 1 && T(c.mon.name) === n) drawTags(B, c, 12 + UI.measure(n.slice(0, EN ? 12 : 6), 7 * SC), 171 + i * 13, 90, 5);
+    const s = UI.fit(n, 78, 7 * SC);
+    text(s, 10, 170 + i * 13, { size: 7 * SC });
+    const c = B.cursor; if (c && c.side === 1 && T(c.mon.name) === n) drawTags(B, c, 12 + UI.measure(s, 7 * SC), 171 + i * 13, 90, 5);
   });
+  drawParty(B, g);
+}
+function drawParty(B, g) {
   box(94, 162, 160, 76);
   B.party.forEach((u, i) => {
     const y = 169 + i * 16, col = !BT.alive(u) ? '#ff6a6a' : u.hp < u.maxhp / 4 ? '#ffd040' : '#fff';
-    text((B.turn === u ? '▶' : '') + T(CHARS[u.id].name).slice(0, EN ? 8 : 4), 102, y, { color: col, size: 7 * SC });
+    const name = (B.turn === u ? '▶' : '') + UI.fit(T(CHARS[u.id].name), 180 - UI.measure(`${u.hp}`, 7 * SC) - 102 - (B.turn === u ? 7 : 0), 7 * SC);
+    text(name, 102, y, { color: col, size: 7 * SC });
     text(`${u.hp}`, 186, y, { align: 'right', color: col, size: 7 * SC });
     text(`${u.mp}`, 208, y, { align: 'right', color: '#a8c8ff', size: 6 * SC });
     // ATB gauge
     g.fillStyle = '#222'; g.fillRect(212 * SC, (y + 2) * SC, 36 * SC, 4 * SC);
     g.fillStyle = u.charge ? '#ffe080' : u.atb >= 100 ? '#ffffff' : u.st.haste ? '#80ff80' : u.st.slow ? '#ff8080' : '#c8a040';
     g.fillRect(212 * SC, (y + 2) * SC, 36 * SC * (u.charge ? 1 : Math.min(1, u.atb / 100)), 4 * SC);
-    drawTags(B, u, 104 + UI.measure((B.turn === u ? '▶' : '') + T(CHARS[u.id].name).slice(0, EN ? 8 : 4), 7 * SC), y + 1, 186 - UI.measure(`${u.hp}`, 7 * SC) - 2, 6);
+    drawTags(B, u, 104 + UI.measure(name, 7 * SC), y + 1, 186 - UI.measure(`${u.hp}`, 7 * SC) - 2, 6);
   });
 }
 // status tags: short coloured marks so everyone can see at a glance who is poisoned, asleep, hasted…
@@ -154,8 +160,9 @@ async function chooseTarget(B, side, opts = {}) {
   const list = (side === 'foe' ? B.mons : B.party).filter((u) => opts.dead ? true : BT.alive(u));
   if (!list.length) return null;
   if (side === 'foe' && list.length === 1) return [list[0]];
-  const i = await menu(list.map((u) => ({ label: nm(u), right: side === 'ally' ? `${u.hp}` : '' })), { x: side === 'foe' ? 4 : 140, y: 120, title: T(['目標', 'Target']), onMove: (it, k) => { B.cursor = list[k]; }, start: 0 });
-  B.cursor = null;
+  B.cursor = list[0]; B.lowMenu = true;
+  const i = await menu(list.map((u) => ({ label: nm(u), right: side === 'ally' ? `${u.hp}` : '' })), { x: 2, y: 162, w: 92, rows: 4, onMove: (it, k) => { B.cursor = list[k]; }, start: 0 });
+  B.cursor = null; B.lowMenu = false;
   if (i < 0) return null;
   return [list[i]];
 }
@@ -207,7 +214,9 @@ async function commandFor(G, B, u) {
   cmds.push(['defend', T(['防禦', 'Defend'])], ['row', T(['換排', 'Row'])]);
   if (!B.boss && !B.opts.noEscape) cmds.push(['escape', T(['逃跑', 'Run'])]);
   for (;;) {
-    const i = await menu(cmds.map(([, l]) => l), { x: 4, y: 162, w: 90, title: T(CHARS[u.id].name), cancel: false, rows: 5 });
+    B.lowMenu = true;
+    const i = await menu(cmds.map(([, l]) => l), { x: 2, y: 162, w: 92, cancel: false, rows: 4 });
+    B.lowMenu = false;
     const k = cmds[i][0];
     const act = await subCommand(G, B, u, k);
     if (act) return act;
@@ -215,7 +224,8 @@ async function commandFor(G, B, u) {
 }
 async function subCommand(G, B, u, k) {
   const m = u.m, S = G.S, bag = G.bag;
-  const T1 = (list, title, opts = {}) => menu(list, { x: 96, y: 96, w: 158, rows: 7, title, ...opts });
+  // sub-lists sit above the windows on the left, clear of the party and their HP / MP
+  const T1 = (list, title, opts = {}) => menu(list, { x: 2, y: 62, w: 192, rows: 5, title, ...opts });
   if (k === 'fight') { const t = await chooseTarget(B, 'foe'); return t && { kind: 'fight', targets: t }; }
   if (['defend', 'row', 'escape', 'astralize', 'runeblade', 'mimic', 'command', 'pray'].includes(k)) {
     if (k === 'astralize' && u.astralized) { await UI.flash(T(['這場戰鬥已經幻化過了', 'Already transformed this battle']), 0.8); return null; }

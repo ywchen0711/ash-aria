@@ -30,6 +30,12 @@ export function text(str, x, y, opts = {}) {
   g.restore();
 }
 export function measure(str, size = 8 * S) { ctx.save(); ctx.font = `${size}px ${FONT}`; const w = ctx.measureText(str).width / S; ctx.restore(); return w; }
+// shorten a string to fit a width (logical px), ending it with "…" so it never runs into the next column
+export function fit(str, width, size = 8 * S) {
+  str = String(str); if (measure(str, size) <= width) return str;
+  let s = str; while (s.length > 1 && measure(s.trimEnd() + '…', size) > width) s = s.slice(0, -1);
+  return s.trimEnd() + '…';
+}
 // wrap text to a width (logical px); CJK breaks anywhere, English at spaces
 export function wrap(str, width) {
   const out = [];
@@ -97,7 +103,7 @@ export function menu(items, opts = {}) {
         for (let r = 0; r < per; r++) for (let c = 0; c < cols; c++) {
           const i = (top + r) * cols + c, it = items[i]; if (!it) continue;
           const ix = x + 6 + c * cw, iy = oy + r * 14;
-          text(it.label, ix + 10, iy, { color: it.disabled ? '#777' : '#fff' });
+          text(fit(it.label, cw - 14 - (it.right ? measure(it.right) + 8 : 0)), ix + 10, iy, { color: it.disabled ? '#777' : '#fff' });
           if (it.right) text(it.right, ix + cw - 4, iy, { align: 'right', color: it.disabled ? '#777' : '#ddd' });
           if (i === sel && !opts.inactive) cursor(ix, iy);
         }
