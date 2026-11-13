@@ -6,7 +6,7 @@ import { newMember, maxhp, maxmp, atk, defense, mdefense, str, mag, spd, vit, he
 import { tile, person, airship as shipSprite } from './art.js?v=5';
 import { buildMaps, TILE, WALK, LANDABLE, BARRIERS, worldZone, placeOf, PLACES_B, PLACES_R } from './maps.js?v=5';
 import { encounter, MONSTERS } from './monsters.js?v=5';
-import { runBattle } from './battleview.js?v=5';
+import { runBattle } from './battleview.js?v=6';
 import { decorate, SPEAKERS, CHAPTERS, ending as endingLines, opening } from './story.js?v=5';
 import { music, sfx, toggleMute, isMuted, unlock } from './audio.js?v=5';
 import * as UI from './ui.js?v=5';

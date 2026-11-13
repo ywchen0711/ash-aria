@@ -43,6 +43,7 @@ function drawBattle(G, B, g, dt) {
     g.drawImage(img, (u.cx - u.sz / 2) * SC, (u.cy - u.sz + bob) * SC, u.sz * SC, u.sz * SC);
     g.restore();
     if (u.st.sleep) text('Zzz', u.cx + u.sz * 0.3, u.cy - u.sz, { color: '#a8d0ff', size: 7 * SC });
+    if (BT.alive(u)) drawTags(B, u, u.cx - 30, u.cy + 4, u.cx + 30, 5, 'center');
     if (B.cursor === u && Math.floor(B.anim * 4) % 2 === 0) text('▼', u.cx - 3, u.cy - u.sz - 8, { color: '#ffe080' });
   }
   // the party, facing left; the one acting steps forward
@@ -78,20 +79,39 @@ function drawBattle(G, B, g, dt) {
   // the window: enemies on the left, the party's HP and ATB on the right
   box(2, 162, 92, 76);
   const names = []; for (const u of B.mons) if (BT.alive(u)) { const k = T(u.mon.name); if (!names.includes(k)) names.push(k); }
-  names.slice(0, 5).forEach((n, i) => text(n.slice(0, EN ? 12 : 6), 10, 170 + i * 13, { size: 7 * SC }));
+  names.slice(0, 5).forEach((n, i) => {
+    text(n.slice(0, EN ? 12 : 6), 10, 170 + i * 13, { size: 7 * SC });
+    const c = B.cursor; if (c && c.side === 1 && T(c.mon.name) === n) drawTags(B, c, 12 + UI.measure(n.slice(0, EN ? 12 : 6), 7 * SC), 171 + i * 13, 90, 5);
+  });
   box(94, 162, 160, 76);
   B.party.forEach((u, i) => {
     const y = 169 + i * 16, col = !BT.alive(u) ? '#ff6a6a' : u.hp < u.maxhp / 4 ? '#ffd040' : '#fff';
     text((B.turn === u ? '▶' : '') + T(CHARS[u.id].name).slice(0, EN ? 8 : 4), 102, y, { color: col, size: 7 * SC });
     text(`${u.hp}`, 186, y, { align: 'right', color: col, size: 7 * SC });
     text(`${u.mp}`, 208, y, { align: 'right', color: '#a8c8ff', size: 6 * SC });
-    const st = Object.keys(u.st).filter((k) => STATUS[k] && !['protect', 'shell', 'regen', 'haste'].includes(k))[0];
     // ATB gauge
     g.fillStyle = '#222'; g.fillRect(212 * SC, (y + 2) * SC, 36 * SC, 4 * SC);
     g.fillStyle = u.charge ? '#ffe080' : u.atb >= 100 ? '#ffffff' : u.st.haste ? '#80ff80' : u.st.slow ? '#ff8080' : '#c8a040';
     g.fillRect(212 * SC, (y + 2) * SC, 36 * SC * (u.charge ? 1 : Math.min(1, u.atb / 100)), 4 * SC);
-    if (st) text(T(STATUS[st]).slice(0, 2), 230, y - 6, { color: '#c8a0ff', size: 5 * SC });
+    drawTags(B, u, 104 + UI.measure((B.turn === u ? '▶' : '') + T(CHARS[u.id].name).slice(0, EN ? 8 : 4), 7 * SC), y + 1, 186 - UI.measure(`${u.hp}`, 7 * SC) - 2, 6);
   });
+}
+// status tags: short coloured marks so everyone can see at a glance who is poisoned, asleep, hasted…
+const TAG = {
+  poison: ['毒', 'PSN', '#a0ff60'], sleep: ['眠', 'SLP', '#a8d0ff'], blind: ['盲', 'BLD', '#c0c0c0'], silence: ['默', 'MUT', '#d0a0ff'],
+  slow: ['慢', 'SLW', '#ff9080'], stop: ['停', 'STP', '#ff6060'], haste: ['快', 'HST', '#80ff80'], protect: ['盾', 'PRT', '#ffe080'],
+  shell: ['魔盾', 'SHL', '#80d8ff'], regen: ['再生', 'RGN', '#7fff8a'], astral: ['幻', 'AST', '#ff80ff'], rally: ['攻↑', 'ATK↑', '#ffb060'], defend: ['防', 'DEF', '#e0e0e0'],
+};
+const tags = (u) => (BT.alive(u) ? Object.keys(u.st).filter((k) => TAG[k] && u.st[k]).map((k) => TAG[k]) : []);
+// draw tags from x to at most maxX; if they don't all fit, page through them about once a second
+function drawTags(B, u, x, y, maxX, size, align) {
+  const list = tags(u); if (!list.length) return;
+  const sz = size * SC, gap = 2, w = (t) => UI.measure(T(t[0], t[1]), sz) + gap;
+  const pages = [[]]; let used = 0;
+  for (const t of list) { const tw = w(t); if (used + tw > maxX - x + gap && pages[pages.length - 1].length) { pages.push([]); used = 0; } pages[pages.length - 1].push(t); used += tw; }
+  const page = pages[Math.floor((B.anim || 0)) % pages.length];
+  let cx = align === 'center' ? x + (maxX - x - page.reduce((s, t) => s + w(t), 0) + gap) / 2 : x;
+  for (const t of page) { text(T(t[0], t[1]), cx, y, { color: t[2], size: sz }); cx += w(t); }
 }
 const hexA = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
 
@@ -269,7 +289,7 @@ const TERRAIN = { field: 'field', wild: 'field', forest: 'forest', desert: 'dese
 export async function runBattle(G, foes, opts = {}) {
   const S = G.S, members = G.members().filter((m) => m);
   const B = BT.createBattle(members, foes, { bag: G.bag, bg: opts.bg || 'field', boss: opts.boss, lvUp: opts.lvUp, dances: S.dances });
-  B.fx = []; B.pops = []; B.opts = opts;
+  B.fx = []; B.pops = []; B.opts = opts; G.liveBattle = B;   // test hook
   G.music(opts.music || (B.boss ? 'boss' : 'battle'));
   G.setScene({ battle: true, draw: (g, dt) => drawBattle(G, B, g, dt) });
   if (B.preempt) await UI.flash(T(['先制攻擊！', 'You strike first!']), 0.8);
